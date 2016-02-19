@@ -19,7 +19,7 @@ int main(int argc, const char *argv[])
             scanf("%d%d%d", &Y1,&X2,&Y2);
             b = a[X2][Y2];
             space=1;
-            while b(>0){
+            while (b>0) {
                 b=b/10;
                 space=space+1;
             }            
