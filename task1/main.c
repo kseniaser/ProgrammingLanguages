@@ -5,7 +5,6 @@
 int main(int argc, const char *argv[])
 {
     int n,i,j,X1,X2,Y1,Y2,b,space;
-    const int b=5;
     scanf("%d", &n);
     int **a=(int**)malloc(n*sizeof(int*));
     for (i=0;i<n;i++){
