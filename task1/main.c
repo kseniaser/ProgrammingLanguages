@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <math.h>
 
 int main(int argc, const char *argv[])
@@ -34,6 +33,5 @@ int main(int argc, const char *argv[])
         free(a[i]);
     }
     free(a);
-    getch();
     return 0;
 }
