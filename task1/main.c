@@ -7,9 +7,9 @@ int main(int argc, const char *argv[])
 {
     int n,i,j,X1,X2,Y1,Y2,space;
     scanf("%d", &n);
-    int **a=malloc(n*sizeof(int*));
+    int **a=(int**)malloc(n*sizeof(int*));
     for (i=0;i<n;i++){
-        a[i]=malloc(n*sizeof(int));
+        a[i]=(int*)malloc(n*sizeof(int));
         for (j=0;j<n;j++){
             a[i][j]=(i+1)*(j+1);
         }
