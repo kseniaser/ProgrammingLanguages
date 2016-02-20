@@ -5,7 +5,7 @@
 
 int main(int argc, const char *argv[])
 {
-    int n,i,j,X1,X2,Y1,Y2,b,space;
+    int n,i,j,X1,X2,Y1,Y2,space;
     scanf("%d", &n);
     int **a=malloc(n*sizeof(int*));
     for (i=0;i<n;i++){
@@ -19,7 +19,6 @@ int main(int argc, const char *argv[])
    space=strlen(str)+1;
     scanf("%d",&X1);
     while (X1){
-    if (X1 != 0){
             scanf("%d%d%d", &Y1,&X2,&Y2); 
             printf("\n");         
             for(i=X1-1;i<X2;i++){
@@ -28,7 +27,6 @@ int main(int argc, const char *argv[])
                 }
                 printf("\n");
             }
-        }
     scanf ("%d",&X1);
     }
     for (i=0;i<n;i++){
