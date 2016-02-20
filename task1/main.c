@@ -14,7 +14,7 @@ int main(int argc, const char *argv[])
             a[i][j]=(i+1)*(j+1);
         }
     }
-   char b[20];
+   char b[0];
    sprintf(b,"%d",a[n-1][n-1]);
    space=strlen(b)+1;
     scanf("%d",&X1);
