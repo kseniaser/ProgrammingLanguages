@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 int main(int argc, const char *argv[])
@@ -13,24 +14,21 @@ int main(int argc, const char *argv[])
             a[i][j]=(i+1)*(j+1);
         }
     }
+   char str[20];
+   sprintf(str,"%d",a[n-1][n-1]);
+   space=strlen(str)+1;
     scanf("%d",&X1);
     while (X1){
     if (X1 != 0){
-            scanf("%d%d%d", &Y1,&X2,&Y2);
-            b = a[X2][Y2];
-            space=1;
-            while (b>0) {
-                b=b/10;
-                space=space+1;
-            }            
+            scanf("%d%d%d", &Y1,&X2,&Y2); 
+            printf("\n");         
             for(i=X1-1;i<X2;i++){
                 for (j=Y1-1;j<Y2;j++){
-                    printf("%-*d", space, a[i][j]);
+                    printf("%*d", space, a[i][j]);
                 }
                 printf("\n");
             }
         }
-    printf("\n");
     scanf ("%d",&X1);
     }
     for (i=0;i<n;i++){
