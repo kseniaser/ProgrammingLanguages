@@ -14,9 +14,9 @@ rational::rational(int temp1, int temp2) {
 int rational::gcd(int temp1, int temp2) const {
     while (temp1 && temp2) {
         if (temp1 > temp2)
-            temp1 /= temp2;
+            temp1 %= temp2;
         else
-            temp2 /= temp1;
+            temp2 %= temp1;
     };
     return temp1 + temp2;
 }
