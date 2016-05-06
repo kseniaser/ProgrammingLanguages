@@ -18,6 +18,6 @@ private:
 
     int num;
     int denom;
-    int gcd(int temp1, int temp2) const;
+    int gcd(int, int);
 
 };
