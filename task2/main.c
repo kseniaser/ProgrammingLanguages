@@ -28,11 +28,11 @@ void WTF() {
     fclose(file);
 }
 
-int Confirm (char c, int cond) {
+int confirm (char c, int cond) {
     int array[3];
-    array[1]=isalpha(c);
-    array[2]=isdigit(c);
-    array[3]=isalnum(c);
+    array[0]=isalpha(c);
+    array[1]=isdigit(c);
+    array[2]=isalnum(c);
     return array[cond];
 }
 
@@ -44,14 +44,15 @@ char *getting(FILE *input, int cond) {
             if (cond == 2) {
                 cond = isalpha(c) ? 0 : 1;
             }
-            if (Confirm(c, cond)) {
+            if (confirm(c, cond)) {
                 if ((l + 1) == size) {
                     size *= 2;
                     gotten = realloc(gotten, size * sizeof(char));
                 }
                 gotten[l++] = c;
                 gotten[l] = '\0';
-            } else if ((c == '+' && l > 0) || (cond == 0) || (cond != 0 && c != '(' && c != ')' && c != '-' && c != '+')) {
+            } else if ((c == '+' && l > 0) || (cond == 0) ||
+                       (cond != 0 && c != '(' && c != ')' && c != '-' && c != '+')) {
                 flag = 1;
             }
         } else if (l > 0) {
@@ -67,7 +68,7 @@ char *getting(FILE *input, int cond) {
     return gotten;
 }
 
-int Compare(char *s1, char *s2) {
+int compare(char *s1, char *s2) {
     int i = 0;
     char *ss1 = malloc(strlen(s1) * sizeof(char));
     while (s1[i] != '\0') {
@@ -105,7 +106,7 @@ void find() {
         int i;
         for (i = 0; i < book.length; i++) {
             if ((isdigit(request[0]) && !strcmp(book.data[i].telephoneNumber, request)) ||
-                (isalpha(request[0]) && Compare(book.data[i].name, request))) {
+                (isalpha(request[0]) && compare(book.data[i].name, request))) {
                 printf("%d %s %s\n", book.data[i].id, book.data[i].name, book.data[i].telephoneNumber);
                 found = 1;
             }
