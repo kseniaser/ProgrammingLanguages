@@ -11,7 +11,7 @@ rational::rational(int temp1, int temp2) {
     denom = temp2 / v;
 }
 
-int rational::gcd(int temp1, int temp2) const {
+int rational::gcd(int temp1, int temp2) {
     while (temp1 && temp2) {
         if (temp1 > temp2)
             temp1 %= temp2;
@@ -35,7 +35,6 @@ rational rational::operator+(rational const &b) const {
 rational rational::operator-(rational const &b) const {
     return rational(num * b.denom - b.num * denom, denom * b.denom);
 }
-
 
 rational rational::operator*(rational const &b) const {
     return rational(num * b.num, denom * b.denom);
