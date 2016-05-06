@@ -42,12 +42,7 @@ char *getting(FILE *input, int cond) {
     while (c != EOF) {
         if (!isspace(c)) {
             if (cond == 2) {
-                if (isalpha(c) != 0){
-                    cond = 0;
-                }
-                else {
-                    cond = 1;
-                }
+                cond = isalpha(c) ? 0 : 1;
             }
             if (Confirm(c, cond)) {
                 if ((l + 1) == size) {
