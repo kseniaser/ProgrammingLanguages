@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.4)
 
-set(HEADERS rational.h)
-set(SOURCES rational.cpp)
-add_library(rational ${SOURCES} ${HEADERS})
-install (TARGETS rational DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-install (FILES rational.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
-install (FILES rational.cpp DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+project(rational)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+add_library(rational SHARED rational.cpp)
+
+install (FILES rational.h DESTINATION include)
+install (TARGETS rational DESTINATION lib)
