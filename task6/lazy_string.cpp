@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include "lazy_string.h"
-//#include <iostream>
+#include <iostream>
 
 using namespace std;
 
