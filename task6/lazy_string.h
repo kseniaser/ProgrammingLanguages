@@ -14,7 +14,6 @@ class lazy_string {
 private:
     size_t beginning, sz;
     string kawaii;
-    lazy_string general;
     lazy_string(const lazy_string &general, size_t beginning, size_t size);
 
 public:
