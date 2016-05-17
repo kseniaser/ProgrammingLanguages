@@ -4,7 +4,6 @@
 #include <string>
 #include <istream>
 #include <ostream>
-#include <bits/shared_ptr.h>
 
 using namespace std;
 
