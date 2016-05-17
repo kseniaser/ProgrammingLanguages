@@ -62,5 +62,9 @@ lazy_string::lazy_string(const lazy_string &lazy, size_t beginning, size_t size)
     (*this).sz = size;
 }
 
+    lazy_string::operator std::string(){
+        return kawaii.substr(beginning,sz);
+    };
+
 
 
