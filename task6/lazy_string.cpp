@@ -13,7 +13,7 @@ lazy_string lazy_string::substr(size_t position, size_t size) {
     if (position > sz)
         throw std::out_of_range("lazy_string");
     return lazy_string(
-            general,
+            kawaii,
             position + size > sz ? (sz - position) : size,
             beginning + position
     );
