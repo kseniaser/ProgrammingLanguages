@@ -81,6 +81,11 @@ public:
      * @return lazy_string instance.
      */
     lazy_string(const string &str);
+      /**
+     * Creates std::string using COW method from this lazy_string.
+     * @return std::string instance.
+     */
+    operator std::string();
 
 };
 
