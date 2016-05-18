@@ -258,9 +258,9 @@ namespace Format {
                 if (formString.name[4])
                     temp += '0';
                 if (formString.sz != 0)
-                    temp.append(std::to_string(formString.sz));
+                    temp += (std::to_string(formString.sz));
                 temp += '.';
-                temp.append(std::to_string(formString.precision));
+                temp += (std::to_string(formString.precision));
                 return final + Implementation(temp + str.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
             } else {
                 if (str[item] == '-') {
