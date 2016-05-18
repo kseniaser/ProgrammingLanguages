@@ -522,3 +522,4 @@ namespace Format {
 template<typename... Args> std::string format(const std::string& str, const Args&... args){
     return Format::Implementation(str, 0, 0, args...);
 }
+#endif
