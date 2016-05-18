@@ -42,7 +42,7 @@ namespace Format {
         throw std::invalid_argument("Unacceptable type");
     }
     template<typename To, typename From>
-    typename std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
+    typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
         retutn (To) value;
     }
 
