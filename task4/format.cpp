@@ -4,8 +4,9 @@
 namespace Format {
     std::string sequenceOfChar(unsigned u, char c) {
         std::string final = "";
-        for (unsigned i = 1; i <= u; i++)
+        for (unsigned i = 1; i <= u; i++){
             final += c;
+        }
         return final;
     }
 
@@ -46,11 +47,11 @@ namespace Format {
         return final;
     }
 
-    std::string Implementation (const std::string &str, unsigned output, unsigned item) {
+    std::string formatImplementation (const std::string &str, unsigned output, unsigned item) {
         return specification(str, false, item);
     }
 
-    std::string ptint_at (nullptr_t val) {
+    std::string ptint_at (nullptr_t value) {
         return "nullptr";
     }
 }
