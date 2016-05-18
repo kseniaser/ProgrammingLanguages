@@ -182,6 +182,7 @@ namespace Format {
         uintmax_t u;     // Unsigned
         double f;        // Floating point
         char nil_p[6];   // Null pointer
+        bool nya;
 
         while (item < str.length() &&
                (str[item] == '-' ||
@@ -290,20 +291,25 @@ namespace Format {
                 str[item] == 't' ||
                 str[item] == 'L'
                )) {
-            bool nya = (formString.length == standart);
             if (str[item++] == 'h') {
+                nya = (formString.length == standart);
                 long hex = (nya) ? h : error;
                 formString.length = (formString.length == h) ? hh : hex;
             } else if (str[item++] == 'l') {
+                nya = (formString.length == standart);
                 long lex = (nya) ? l : error;
                 formString.length = (formString.length == l) ? ll : lex;
             } else if (str[item++] == 'j') {
+                nya = (formString.length == standart);
                 formString.length = (nya) ? j : error;
             } else if (str[item++] == 'z') {
+                nya = (formString.length == standart);
                 formString.length = (nya) ? z : error;
             } else if (str[item++] == 't') {
+                nya = (formString.length == standart);
                 formString.length = (nya) ? t : error;
             } else if (str[item++] == 'L') {
+                nya = (formString.length == standart);
                 formString.length = (nya) ? L : error;
             }
         }
