@@ -70,7 +70,7 @@ namespace Format {
         return std::to_string(value);
     }
 
-    template<typename T, int m> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[n]) {
+    template<typename T, int m> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[m]) {
         std::string temp = "[";
         for(int i = 0; i < m-1; i++){
             temp += (std::to_string(a[i]) + ", ");
