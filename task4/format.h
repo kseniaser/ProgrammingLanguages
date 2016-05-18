@@ -15,15 +15,15 @@ template<typename... Args> std::string format(const std::string& str, const Args
 
 namespace Format {
     enum length_t {hh,
-                   h,
-                   standart,
-                   l,
-                   ll,
-                   j,
-                   z,
-                   t,
-                   L,
-                   error};
+        h,
+        standart,
+        l,
+        ll,
+        j,
+        z,
+        t,
+        L,
+        error};
 
     struct format_t {
         enum length_t length = standart;
@@ -33,22 +33,22 @@ namespace Format {
         char type;
     };
 
-   // template<typename To, typename From>
+    // template<typename To, typename From>
     //double convert(From value){
-      //  return (To) value;
+    //  return (To) value;
     //}
-    template<typename To, typename From> 
+    template<typename To, typename From>
     typename std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
         throw std::invalid_argument("Unacceptable type");
     }
-    template<typename To, typename From> 
+    template<typename To, typename From>
     typename std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
         retutn (To) value;
     }
 
     std::string specification(const std::string &str, bool presence, unsigned &item);
 
-    std::string Implementation (const std::string &fmt, unsigned output, unsigned item);
+    std::string formatImplementation (const std::string &fmt, unsigned output, unsigned item);
 
     std::string sequenceOfChar(unsigned u, char c );
 
@@ -65,8 +65,8 @@ namespace Format {
     std::string print_at(nullptr_t value);
 
     template<typename T> typename std::enable_if<!std::is_integral<T>::value &&
-            !std::is_convertible<T, std::string>::value &&
-            !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
+                                                 !std::is_convertible<T, std::string>::value &&
+                                                 !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
         throw std::invalid_argument("Unacceptable type");
     }
 
@@ -88,8 +88,8 @@ namespace Format {
     }
 
     template<typename T> typename std::enable_if<!std::is_array<T>::value &&
-            !std::is_convertible<T, std::string>::value &&
-            std::is_pointer<T>::value, std::string>::type print_at(T& value){
+                                                 !std::is_convertible<T, std::string>::value &&
+                                                 std::is_pointer<T>::value, std::string>::type print_at(T& value){
 
         std::string temp;
 
@@ -157,8 +157,8 @@ namespace Format {
             templ += sequenceOfChar(  formStr.precision - templ.size() + templ.find_first_of('.') + 1, '0');
 
         if(formStr.precision > 1024 && templ.size() > 1024 / 2 && !formStr.name[6]) {
-                int k = (templ[0] == '0' ? 0 : 1);
-                templ = templ.substr(0, 2) + sequenceOfChar(formStr.precision - templ.size() + (k), '0') + templ.substr(2);
+            int k = (templ[0] == '0' ? 0 : 1);
+            templ = templ.substr(0, 2) + sequenceOfChar(formStr.precision - templ.size() + (k), '0') + templ.substr(2);
         }
 
 
@@ -171,16 +171,16 @@ namespace Format {
             templ += (templ.find_first_of("+- ") == 0) ?  s1 : s2;
         }
         if((unsigned) formStr.sz > templ.size() && !formStr.name[1] && !formStr.name[4]) {
-                    templ += sequenceOfChar(formStr.sz - templ.size(), ' ');
+            templ += sequenceOfChar(formStr.sz - templ.size(), ' ');
         }
 
         return templ;
     }
 
-    template<typename First, typename... Rest> std::string Implementation(const std::string& str, unsigned item, unsigned output, const First& value, const Rest&... args) {
+    template<typename First, typename... Rest> std::string formatImplementation(const std::string& str, unsigned item, unsigned output, const First& value, const Rest&... args) {
         std::string final = specification(str, true, item);
         std::string temp = "";
-        
+
         format_t formString;
         intmax_t d;      // Integer
         uintmax_t u;     // Unsigned
@@ -219,31 +219,31 @@ namespace Format {
                 formString.name[4] = false;
             }
 
-        temp = "%";
+            temp = "%";
 
-        if (formString.name[0])
+            if (formString.name[0])
                 temp += '+';
-        if (formString.name[1])
+            if (formString.name[1])
                 temp += '-';
-        if (formString.name[2])
+            if (formString.name[2])
                 temp += ' ';
-        if (formString.name[3])
+            if (formString.name[3])
                 temp += '#';
-        if (formString.name[4])
+            if (formString.name[4])
                 temp += '0';
 
-        temp += (std::to_string(formString.sz));
+            temp += (std::to_string(formString.sz));
 
-        return final + foramatImplementation(temp + str.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
+            return final + formatImplementation(temp + str.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
 
         } else {
 
-        while (item < str.length() && isdigit(str[item]))
-            temp += str[item++];
+            while (item < str.length() && isdigit(str[item]))
+                temp += str[item++];
 
-        if (!temp.empty()) {
-            formString.sz = stoi(temp);
-            temp.clear();
+            if (!temp.empty()) {
+                formString.sz = stoi(temp);
+                temp.clear();
             }
         }
 
@@ -274,11 +274,11 @@ namespace Format {
                 }
                 if (str[item] != '-'){
                     formString.precision = 1
-                    };
-                    
+                };
+
                 while (item < str.length() && isdigit(str[item]))
                     temp += str[item++];
-                    
+
                 if (!temp.empty()) {
                     formString.precision *= stoi(temp);
                     temp.clear();
@@ -302,7 +302,7 @@ namespace Format {
                 long hex = (nya) ? h : error;
                 formString.length = (formString.length == h) ? hh : hex;
             } else if (str[item++] == 'l') {
-               long lex = (nya) ? l : error;
+                long lex = (nya) ? l : error;
                 formString.length = (formString.length == l) ? ll : lex;
             } else if (str[item++] == 'j') {
                 formString.length = (nya) ? j : error;
@@ -396,8 +396,8 @@ namespace Format {
 
             final += (print_num(formString, u));
 
-        } else if (formString.type == 'E' || 
-                   formString.type == 'G' || 
+        } else if (formString.type == 'E' ||
+                   formString.type == 'G' ||
                    formString.type == 'A') {
 
             formString.name[5] = true;
@@ -407,7 +407,7 @@ namespace Format {
                    formString.type == 'a' ||
                    formString.type == 'F' ||
                    formString.type == 'f'
-                   ){
+                ){
 
             formString.name[6] = true;
 
