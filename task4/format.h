@@ -43,7 +43,7 @@ namespace Format {
     }
     template<typename To, typename From>
     typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
-        retutn (To) value;
+        return (To) value;
     }
 
     std::string specification(const std::string &str, bool presence, unsigned &item);
