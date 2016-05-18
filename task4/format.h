@@ -273,8 +273,8 @@ namespace Format {
                     item++;
                 }
                 if (str[item] != '-'){
-                    formString.precision = 1
-                };
+                    formString.precision = 1;
+                }
 
                 while (item < str.length() && isdigit(str[item]))
                     temp += str[item++];
