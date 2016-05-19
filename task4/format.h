@@ -218,7 +218,7 @@ namespace Format {
                 if (templ.find_first_of("+- ") == 0) {
                     templ = templ[0] + sequenceOfChar('0', formStr.sz - templ.size()) + templ.substr(1);
                 } else {
-                    templ = templ[0] + sequenceOfChar('0', formStr.sz - templ.size()) + templ.substr(1);
+                    templ += sequenceOfChar('0', formStr.sz - templ.size()) + templ.substr(1);
                 }
 
             }
