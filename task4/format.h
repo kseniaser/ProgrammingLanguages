@@ -154,7 +154,7 @@ namespace Format {
                         r += char_seq('0', fm.width - r.size());
                     }
                 } else {
-                    r += char_seq(' ', fm.width - r.size());
+                    r = char_seq(' ', fm.width - r.size()) + r;
                 }
             }
         }
