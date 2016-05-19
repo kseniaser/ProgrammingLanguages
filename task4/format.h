@@ -112,11 +112,11 @@ namespace Format {
         std::string finally;
 
         if(value == 0){
-            finally += "nullptr<" + (std::string)typeid(*value).name() + ">";
+            finally.append("nullptr<").append.(typeid(*value).name()).(">");
         }
 
         if(value != 0){
-            finally += "ptr<" + (std::string)typeid(*value).name() + ">(" + format("%@", *value) + ")";
+            finally.append("ptr<").append(typeid(*value).name()).append(">(").append.(format("%@", *value)).append(")");
         }
 
         return finally;
