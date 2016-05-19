@@ -132,13 +132,25 @@ namespace Format {
         
         std::string r = buffer;
         
-        if(fm.precision > 1024 && r.size() > 512){
-            if(fm.floating){
-                r = r + char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
-            } else {
-                r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + (r[0] == '0' ? 0 : 1)) + r.substr(2);
-            }
+        if(fm.precision > 1024 && r.size() > 512 && fm.floating){
+                r += char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
         }
+        if(fm.precision > 1024 && r.size() > 512 && !fm.floating){
+                if (r[0]=='0'){
+                    r = r.substr(0, 2) + char_seq('0', fm.precision - r.size()) + r.substr(2);
+                } else {
+                    r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + 1) + r.substr(2);
+                }
+            }
+        
+        
+        //if(fm.precision > 1024 && r.size() > 512){
+       //     if(fm.floating){
+       //         r = r + char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
+        //    } else {
+        //        r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + (r[0] == '0' ? 0 : 1)) + r.substr(2);
+         //   }
+        //}
 
         if((unsigned) fm.width > r.size()){
             if(fm.left_justify){
