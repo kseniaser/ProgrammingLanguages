@@ -234,7 +234,10 @@ namespace Format {
                 } else {
                     fm.precision = 1;
                 }
-                for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
+                while (pos < fmt.length() && isdigit(fmt[pos])){
+                    temp += fmt[pos++];
+                }
+                //for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
                 if(!temp.empty()){
                     fm.precision *= stoi(temp);
                     temp.clear();
