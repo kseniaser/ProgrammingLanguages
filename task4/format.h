@@ -143,26 +143,26 @@ namespace Format {
                 }
             }
             
-        long long param = r.size();
-        long long pararam = (unsigned) fm.width; 
-        if(pararam > param && fm.left_justify){
+        if((unsigned) fm.width > r.size()){
+            if(fm.left_justify){
                 r += char_seq(' ', fm.width - r.size());
-        }
-        if( pararam > param && !fm.left_justify && fm.left_pad){
-            if (r.find_first_of("+- ") == 0) {
-                r = r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
-            } else {
-                r += char_seq('0', fm.width - r.size());
-            }
-        } 
-        if(pararam > param && !fm.left_justify && !fm.left_pad) {
+            } 
+            if(!fm.left_justify) {
+                if(fm.left_pad){
+                    if (r.find_first_of("+- ") == 0){
+                        r =  r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
+                    } else {
+                        r += char_seq('0', fm.width - r.size());  
+                    }
+                } else {
                     r += char_seq(' ', fm.width - r.size());
+                }
+            }
         }
-        
-
+           
 
         //if((unsigned) fm.width > r.size()){
-         //   if(fm.left_justify){
+         //  if(fm.left_justify){
          //       r = r + char_seq(' ', fm.width - r.size());
          //   } else {
          //       if(fm.left_pad){
