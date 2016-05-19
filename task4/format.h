@@ -587,3 +587,4 @@ template<typename... Args> std::string format(const std::string& str, const Args
     return Format::formatImplementation(str, 0, 0, args...);
 }
 
+#endif
