@@ -296,9 +296,6 @@ namespace Format {
             return final + formatImplementation(temp + strF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
         } else {
             for (; item < strF.length() && isdigit(strF[item]);temp+=strF[item++]);
-            //while (item < str.length() && isdigit(str[item])){
-            //    temp += str[item++];
-            //}
 
             if(!temp.empty()){
                 formString.sz = stoi(temp);
@@ -343,9 +340,6 @@ namespace Format {
                     formString.accur = 1;
                 }
                 for (;item < strF.length() && isdigit (strF[item]); temp += strF[item++])
-                    //while (item < str.length() && isdigit(str[item])){
-                    //    temp += str[item++];
-                    //}
 
                     if(!temp.empty()){
                         formString.accur *= stoi(temp);
@@ -593,4 +587,3 @@ template<typename... Args> std::string format(const std::string& str, const Args
     return Format::formatImplementation(str, 0, 0, args...);
 }
 
-#endif
