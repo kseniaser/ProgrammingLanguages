@@ -398,28 +398,20 @@ namespace Format {
                 result.append(print_num(fm, f));
                 break;
             case 'c':
-                switch (fm.length){
-                    case len_l:
-                        // out << convert<wchar_t>(value); // FIXME Wide chars
-                        break;
-                    case len_default:
+                if (fm.length == len_l) {
+                } else if (fm.length == len_default) {
                         out << convert<unsigned char>(value);
-                        break;
-                    default:
+                } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
                 result.append(out.str());
                 break;
             case 's': {
                 std::string str;
-                switch (fm.length){
-                    case len_l:
-                        // str = convert<std::wstring>(value); // FIXME Wide strings
-                        break;
-                    case len_default:
+                if (fm.length == len_l) {
+                } else if (fm.length == len_default) {
                         str = convert<std::string>(value);
-                        break;
-                    default:
+                } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
                 if(fm.precision >= 0 && str.length() > (unsigned) fm.precision){
@@ -444,32 +436,23 @@ namespace Format {
                 break;
             case 'n':
                 printed += result.length();
-                switch (fm.length){
-                    case len_hh:
+                if (fm.length == len_hh) {
                         *(convert<signed char*>(value)) = printed;
-                        break;
-                    case len_h:
+                } else if (fm.length == len_h) {
                         *(convert<short int*>(value)) = printed;
-                        break;
-                    case len_l:
+                } else if (fm.length == len_l) {
                         *(convert<long int*>(value)) = printed;
-                        break;
-                    case len_ll:
+                } else if (fm.length == len_ll) {
                         *(convert<long long int*>(value)) = printed;
-                        break;
-                    case len_j:
+                } else if (fm.length == len_j) {
                         *(convert<intmax_t*>(value)) = printed;
-                        break;
-                    case len_z:
+                } else if (fm.length == len_z) {
                         *(convert<size_t*>(value)) = printed;
-                        break;
-                    case len_t:
+                } else if (fm.length == len_t) {
                         *(convert<ptrdiff_t*>(value)) = printed;
-                        break;
-                    case len_default:
+                } else if (fm.length == len_default) {
                         *(convert<int*>(value)) = printed;
-                        break;
-                    default:
+                } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
                 break;
