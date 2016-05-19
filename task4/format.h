@@ -327,9 +327,7 @@ namespace Format {
         char nil_p[6];   // Null pointer fix
 
         fm.type = fmt[pos++];
-        switch(fm.type){
-            case 'd':
-            case 'i':
+        if (fm.type == 'd' || fm.type =='i') {
                 if (fm.length == len_hh) {
                         d = convert<signed char>(value);
                 } else if (fm.length == len_h) {
@@ -350,12 +348,9 @@ namespace Format {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
                 result += print_num(fm, d);
-                break;
-            case 'X':
+        } else if (fm.type == 'X') {
                 fm.uppercase = true;
-            case 'x':
-            case 'o':
-            case 'u':
+        } else if (fm.type == 'x' || fm.type == 'o' || fm.type == 'u') {
                 if (fm.length == len_hh) {
                         u = convert<unsigned char>(value);
                 } else if (fm.length == len_h) {
@@ -375,17 +370,10 @@ namespace Format {
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                result.append(print_num(fm, u));
-                break;
-            case 'E':
-            case 'G':
-            case 'A':
+                result += print_num(fm, u);
+        } else if (fm.type == 'E' || fm.type == 'G' || fm.type == 'A') {
                 fm.uppercase = true;
-            case 'e':
-            case 'g':
-            case 'a':
-            case 'F':
-            case 'f':
+        }else if (fm.type == 'e' || fm.type == 'g' ||fm.type == 'a' || fm.type == 'F' || fm.type == 'f') {
                 fm.floating = true;
                 if (fm.length == len_l){
                 } else if (fm.length == len_default) {
@@ -395,18 +383,16 @@ namespace Format {
                 } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
-                result.append(print_num(fm, f));
-                break;
-            case 'c':
+                result += print_num(fm, f);
+        } else if (fm.type == 'c') {
                 if (fm.length == len_l) {
                 } else if (fm.length == len_default) {
                         out << convert<unsigned char>(value);
                 } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
-                result.append(out.str());
-                break;
-            case 's': {
+                result += out.str();
+        } else if (fm.type == 's') {
                 std::string str;
                 if (fm.length == len_l) {
                 } else if (fm.length == len_default) {
@@ -418,10 +404,8 @@ namespace Format {
                     str = str.substr(0, fm.precision);
                 }
                 out << str;
-                result.append(out.str());
-            }
-                break;
-            case 'p':
+                result += out.str();
+        } else if (fm.type == 'p') {
                 if(fm.length != len_default){
                     throw std::invalid_argument("Unsupported length specifier");
                 }
@@ -432,9 +416,8 @@ namespace Format {
                 } else {
                     out << "(nil)";
                 }
-                result.append(out.str());
-                break;
-            case 'n':
+                result += out.str();
+        } else if (fm.type == 'n') {
                 printed += result.length();
                 if (fm.length == len_hh) {
                         *(convert<signed char*>(value)) = printed;
@@ -455,13 +438,10 @@ namespace Format {
                 } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
-                break;
-            case '@':
-                result.append(print_at(value));
-                break;
-            default:
+        } else if (fm.type == '@') {
+                result += print_at(value);
+        } else {
                 throw std::invalid_argument("Unknown format specifier: '" + fmt[pos] + '\'');
-                break;
         }
 
         return result + format_impl(fmt, pos, printed + result.length(), args...);
