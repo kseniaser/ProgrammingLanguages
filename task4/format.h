@@ -207,7 +207,6 @@ namespace Format {
             while (pos < fmt.length() && isdigit(fmt[pos])){
                 temp += fmt[pos++];
             }
-            //for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
             if(!temp.empty()){
                 fm.width = stoi(temp);
                 temp.clear();
@@ -215,23 +214,23 @@ namespace Format {
         }
 
         if(pos < fmt.length() - 1 && fmt[pos] == '.'){
-            pos++;
+            ++pos;
             if(fmt[pos] == '*'){
                 fm.precision = convert<int>(value);
                 temp = "%";
-                if(fm.force_sign){temp.push_back('+');}
-                if(fm.left_justify){temp.push_back('-');}
-                if(fm.space_or_sign){temp.push_back(' ');}
-                if(fm.alt_num_format){temp.push_back('#');}
-                if(fm.left_pad){temp.push_back('0');}
-                if(fm.width != 0){temp.append(std::to_string(fm.width));}
-                temp.push_back('.');
-                temp.append(std::to_string(fm.precision));
+                if(fm.force_sign){temp += '+';}
+                if(fm.left_justify){temp += '-';}
+                if(fm.space_or_sign){temp += ' ';}
+                if(fm.alt_num_format){temp += '#';}
+                if(fm.left_pad){temp += '0';}
+                if(fm.width != 0){temp ++= td::to_string(fm.width);}
+                temp += '.';
+                temp += std::to_string(fm.precision);
                 return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
             } else {
                 if(fmt[pos] == '-'){
                     fm.precision = -1;
-                    pos++;
+                    ++pos;
                 } else {
                     fm.precision = 1;
                 }
