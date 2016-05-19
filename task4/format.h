@@ -109,7 +109,11 @@ namespace Format {
         if(fm.left_pad){temp += '0';}
         if(fm.precision >= 0){
             temp += '.';
-            temp.append(std::to_string(fm.precision > 1024 ? 1024 : fm.precision));
+            if (fm.precision > 1024){
+                temp += std::to_string(1024);
+            } else {
+                temp += std::to_string(fm.precision);
+            }
         }
         char buffer[2048];
         if(fm.floating){
