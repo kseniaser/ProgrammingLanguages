@@ -1,4 +1,4 @@
-#ifndef FORMAT_H
+ifndef FORMAT_H
 #define FORMAT_H
 
 #include <string>
@@ -25,7 +25,7 @@ namespace Format {
 
     struct format_t {
         enum length_t length = standart;
-        bool array[8] = {false};
+        bool array[7] = {false};
         int sz = 0, accur = -1;
         char type;
 
