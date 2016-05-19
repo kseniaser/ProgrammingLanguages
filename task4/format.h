@@ -141,26 +141,10 @@ namespace Format {
                 } else {
                     r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + 1) + r.substr(2);
                 }
-            }
-            
-        if((unsigned) fm.width > r.size()){
-            if(fm.left_justify){
-                r += char_seq(' ', fm.width - r.size());
-            } else {
-                if(fm.left_pad){
-                    if (r.find_first_of("+- ") == 0){
-                        r = char_seq('0', fm.width - r.size()) + r.substr(1);
-                    } else {
-                        r += char_seq('0', fm.width - r.size());
-                    }
-                } else {
-                    r = char_seq(' ', fm.width - r.size()) + r;
-                }
-            }
         }
            
 
-        /*if((unsigned) fm.width > r.size()){
+        if((unsigned) fm.width > r.size()){
            if(fm.left_justify){
                 r = r + char_seq(' ', fm.width - r.size());
             } else {
@@ -170,7 +154,7 @@ namespace Format {
                     r = char_seq(' ', fm.width - r.size()) + r;
                 }
             }
-        }*/
+        }
 
         return r;
     }
