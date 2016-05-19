@@ -1,110 +1,126 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
-#include <cstddef>
-#include <cstdio>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <stddef.h>
-#include <stdexcept>
 #include <string>
+#include <sstream>
+#include <stdexcept>
+#include <cstddef>
+#include <iomanip>
+#include <cstdio>
 #include <typeinfo>
 
-template<typename... Args> std::string format(const std::string& str, const Args&... args);
+template<typename... Args> std::string format(const std::string& fmt, const Args&... args);
 
 namespace Format {
     enum length_t {hh,
-        h,
-        standart,
-        l,
-        ll,
-        j,
-        z,
-        t,
-        L,
-        error};
+                   h,
+                   standart,
+                   l,
+                   ll,
+                   j,
+                   z,
+                   t,
+                   L,
+                   error};
 
     struct format_t {
         enum length_t length = standart;
-        bool name[7] = {false};
-        long sz= 0;
-        long precision = -1;
+        bool array[7] = {false};
+        int sz = 0, accur = -1;
         char type;
+
     };
 
-    // template<typename To, typename From>
-    //double convert(From value){
-    //  return (To) value;
-    //}
-    template<typename To, typename From>
-    typename std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
-        throw std::invalid_argument("Unacceptable type");
-    }
-    template<typename To, typename From>
-    typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
+    template<typename To, typename From> typename
+            std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
+
         return (To) value;
+
     }
 
-    std::string specification(const std::string &str, bool presence, unsigned &item);
+    template<typename To, typename From> typename
+            std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
 
-    std::string formatImplementation (const std::string &fmt, unsigned output, unsigned item);
+        throw std::invalid_argument("Unacceptable type");
 
-    std::string sequenceOfChar(unsigned u, char c );
+    }
 
+    std::string specification(const std::string &str, unsigned &item, bool presence);
+
+    std::string formatImplementation(const std::string &str, unsigned item, unsigned output);
+
+    std::string sequenceOfChar(char c, unsigned n);
 
     /*
-     * if the argument is  nullptr_t – prints nullptr
-     * if the argument is pointer and his value is 0 – prints nulltpr<type_name>
-     * if the argument is pointer and his value isn't 0 - prints ptr<type_name>(the_same_as%@)
-     * if it is an element of array of known capacity – prints all elements of array in [] separated by commas
-     * if argument can't be transformed into std::string – prints result of such modification
-     * if non of modifications is possible – throws exception
-     */
+    * if the argument is  nullptr_t – prints nullptr
+    * if the argument is pointer and his value is 0 – prints nulltpr<type_name>
+    * if the argument is pointer and his value isn't 0 - prints ptr<type_name>(the_same_as%@)
+    * if it is an element of array of known capacity – prints all elements of array in [] separated by commas
+    * if argument can't be transformed into std::string – prints result of such modification
+    * if non of modifications is possible – throws exception
+    */
 
     std::string print_at(nullptr_t value);
 
-    template<typename T> typename std::enable_if<!std::is_integral<T>::value &&
-                                                 !std::is_convertible<T, std::string>::value &&
-                                                 !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
-        throw std::invalid_argument("Unacceptable type");
+    template<typename T> typename
+            std::enable_if<!std::is_integral<T>::value &&
+                    !std::is_convertible<T, std::string>::value &&
+                    !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
+
+        throw std::invalid_argument("Invalid argument type");
+
     }
 
-    template<typename T> typename std::enable_if<std::is_integral<T>::value, std::string>::type ptint_at(T value){
+    template<typename T> typename
+            std::enable_if<std::is_integral<T>::value,
+                    std::string>::type print_at(T value){
+
         return std::to_string(value);
+
     }
 
-    template<typename T, int m> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[m]) {
-        std::string temp = "[";
-        for(int i = 0; i < m-1; i++){
-            temp += (std::to_string(a[i]) + ", ");
+    template<typename T, int m> typename
+            std::enable_if<!std::is_convertible<T*,
+                    std::string>::value,
+                    std::string>::type print_at(const T (&mas)[m]) {
+
+        std::string finally = "[";
+
+        for(int i = 0; i < m - 1; i++){
+            finally += (std::to_string(mas[i]) + ", ");
         }
-        temp += (std::to_string(a[m-1]) + ']');
-        return temp;
+
+        finally += (std::to_string(mas[m - 1]) + ']');
+        return finally;
+
     }
 
-    template<typename T> typename std::enable_if<std::is_convertible<T, std::string>::value, std::string>::type ptint_at(const T& value){
+    template<typename T> typename
+            std::enable_if<std::is_convertible<T,
+                    std::string>::value,
+                    std::string>::type print_at(const T& value){
+
         return value;
+
     }
 
-    template<typename T> typename std::enable_if<!std::is_array<T>::value &&
-                                                 !std::is_convertible<T, std::string>::value &&
-                                                 std::is_pointer<T>::value, std::string>::type print_at(T& value){
+    template<typename T> typename
+            std::enable_if<!std::is_array<T>::value &&
+                    !std::is_convertible<T, std::string>::value &&
+                    std::is_pointer<T>::value, std::string>::type print_at(T& value){
 
-        std::string temp;
+        std::string finally;
+
+        if(value == 0){
+            finally += "nullptr<" + (std::string)typeid(*value).name() + ">";
+        }
 
         if(value != 0){
-            temp += "ptr<";
-            temp += (typeid(*value).name());
-            temp += ">(";
-            temp += (format("%@", *value));
-            temp += ")";
-        } else {
-            temp += "nullptr<";
-            temp += (typeid(*value).name());
-            temp += ">";
+            finally += "ptr<" + (std::string)typeid(*value).name() + ">(" + format("%@", *value) + ")";
         }
-        return temp;
+
+        return finally;
+
     }
 
     /*
@@ -112,240 +128,313 @@ namespace Format {
      * If the argument does not match its specifier, it throws an exception
      */
 
-    template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t formStr, T value){
+    template<typename T> typename
+            std::enable_if<std::is_arithmetic<T>::value,
+                    std::string>::type print_num(format_t formStr, T value){
 
-        if (!formStr.name[6] && formStr.precision < 0)
-            formStr.precision = 1;
-        if (!formStr.name[6] && formStr.precision >= 0 && formStr.name[4])
-            formStr.name[4]= false;
+        if(!formStr.array[6] && formStr.accur < 0) {
+            formStr.accur = 1;
+        }
+
+        if(!formStr.array[6] && formStr.accur >= 0 && formStr.array[4]) {
+                formStr.array[4] = false;
+        }
 
         std::string temp = "%";
 
-        if(formStr.name[0])
+        if(formStr.array[0]){
             temp += '+';
-        if(formStr.name[1])
+        }
+
+        if(formStr.array[1]){
             temp += '-';
-        if(formStr.name[2])
+        }
+
+        if(formStr.array[2]){
             temp += ' ';
-        if(formStr.name[3])
+        }
+
+        if(formStr.array[3]){
             temp += '#';
-        if(formStr.name[4])
+        }
+
+        if(formStr.array[4]){
             temp += '0';
-        if(formStr.precision >= 0){
+        }
+
+        if(formStr.accur >= 0){
             temp += '.';
-            long i = (formStr.precision > 1024 ? 1024 : formStr.precision);
-            temp += (std::to_string(i));
+            if (formStr.accur > 1024)
+                temp += (std::to_string(1024));
+            else
+                temp += (std::to_string(formStr.accur));
         }
 
         char buf[2048];
 
-        if(formStr.name[6]){
-            if(formStr.length == L)
-                temp += 'L';
-            if(formStr.length == l)
-                temp += 'l';
-            temp += formStr.type;
-        } else {
+        if(!formStr.array[6]) {
             temp += 'j';
+            temp += formStr.type;
+        }
+
+        if(formStr.array[6] && formStr.length == L){
+            temp += 'L';
+        }
+
+        if(formStr.array[6] && formStr.length == l){
+            temp += 'l';
+        }
+
+        if (formStr.array[6]){
             temp += formStr.type;
         }
 
         snprintf(buf, sizeof(buf), temp.c_str(), value);
         std::string templ = buf;
 
-        if(formStr.precision > 1024 && templ.size() > 1024 / 2 && formStr.name[6])
-            templ += sequenceOfChar(  formStr.precision - templ.size() + templ.find_first_of('.') + 1, '0');
+        if(formStr.accur > 1024 && templ.size() > 512 && formStr.array[6]){
+            templ = templ + sequenceOfChar('0', formStr.accur - templ.size() + templ.find_first_of('.') + 1);
+        }
 
-        if(formStr.precision > 1024 && templ.size() > 1024 / 2 && !formStr.name[6]) {
-            int k = (templ[0] == '0' ? 0 : 1);
-            templ = templ.substr(0, 2) + sequenceOfChar(formStr.precision - templ.size() + (k), '0') + templ.substr(2);
+        if(formStr.accur > 1024 && templ.size() > 512 && !formStr.array[6]) {
+
+            if (templ[0] == '0') {
+                templ = templ.substr(0, 2) + sequenceOfChar('0', formStr.accur - templ.size()) + templ.substr(2);
+            } else {
+                templ = templ.substr(0, 2) + sequenceOfChar('0', formStr.accur - templ.size() + 1) + templ.substr(2);
+            }
+
         }
 
 
-        if((unsigned) formStr.sz > templ.size() && formStr.name[1])
-            templ += sequenceOfChar(formStr.sz - templ.size(),' ');
+        if((unsigned) formStr.sz > templ.size()){
 
-        if((unsigned) formStr.sz > templ.size() && !formStr.name[1] && formStr.name[4]) {
-            std::string s1 = templ[0] + sequenceOfChar(formStr.sz - templ.size(), '0') + templ.substr(1);
-            std::string s2 = sequenceOfChar(formStr.sz - templ.size(), '0');
-            templ += (templ.find_first_of("+- ") == 0) ?  s1 : s2;
-        }
-        if((unsigned) formStr.sz > templ.size() && !formStr.name[1] && !formStr.name[4]) {
-            templ += sequenceOfChar(formStr.sz - templ.size(), ' ');
+            if(formStr.array[1]){
+                templ = templ + sequenceOfChar(' ', formStr.sz - templ.size());
+            }
+
+            if(!formStr.array[1] && formStr.array[4]){
+
+                if (templ.find_first_of("+- ") == 0) {
+                    templ = templ[0] + sequenceOfChar('0', formStr.sz - templ.size()) + templ.substr(1);
+                } else {
+                    templ = templ[0] + sequenceOfChar('0', formStr.sz - templ.size()) + templ.substr(1);
+                }
+
+            }
+
+            if(!formStr.array[1] && !formStr.array[4]) {
+                templ = sequenceOfChar(' ', formStr.sz - templ.size()) + templ;
+            }
+
         }
 
         return templ;
+
     }
 
-    template<typename First, typename... Rest> std::string formatImplementation(const std::string& str, unsigned item, unsigned output, const First& value, const Rest&... args) {
-        std::string final = specification(str, true, item);
+    template<typename First, typename... Rest>
+            std::string formatImplementation(const std::string& str,
+                                    unsigned item,
+                                    unsigned output,
+                                    const First& value,
+                                    const Rest&... args){
+
+        std::string result = specification(str, item, true);
         std::string temp = "";
-
         format_t formString;
-        intmax_t d;      // Integer
-        uintmax_t u;     // Unsigned
-        double f;        // Floating point
-        char nil_p[6];   // Null pointer
-        bool nya;
+        intmax_t d;
+        uintmax_t u;
+        double f;
+        char nil_p[6];
 
-        while (item < str.length() &&
-               (str[item] == '-' ||
-                str[item] == '+' ||
-                str[item] == ' ' ||
-                str[item] == '#' ||
-                str[item] == '0'
-               )) {
-            if (str[item++] == '-') {
-                formString.name[1] = true;
-                formString.name[4] = false;
-            } else if (str[item++] == '+') {
-                formString.name[0] = true;
-                formString.name[2] = false;
-            } else if (str[item++] == ' ') {
-                formString.name[2] = !formString.name[0];
-            } else if (str[item++] == '#') {
-                formString.name[3] = true;
-            } else if (str[item++] == '0') {
-                formString.name[4] = !formString.name[1];
+        while(item < str.length() &&
+                (str[item] == '-' ||
+                        str[item] == '+' ||
+                        str[item] == ' ' ||
+                        str[item] == '#' ||
+                        str[item] == '0')) {
+
+            if (str[item] == '-') {
+                formString.array[1] = true;
+                formString.array[4] = false;
+            } else if (str[item] == '+') {
+                formString.array[0] = true;
+                formString.array[2] = false;
+            } else if (str[item] == ' ') {
+                formString.array[2] = !formString.array[0];
+            } else if (str[item] == '#') {
+                formString.array[3] = true;
+            }else if (str[item] == '0') {
+                formString.array[4] = !formString.array[1];
             }
+
+            ++item;
         }
 
-        if (item < str.length() && str[item] == '*') {
+        if(item < str.length() && str[item] == '*'){
             formString.sz = convert<int>(value);
 
-            if (formString.sz < 0) {
+            if(formString.sz < 0){
                 formString.sz *= -1;
-                formString.name[1] = true;
-                formString.name[4] = false;
+                formString.array[1] = true;
+                formString.array[4] = false;
             }
 
             temp = "%";
 
-            if (formString.name[0])
-                temp += '+';
-            if (formString.name[1])
-                temp += '-';
-            if (formString.name[2])
-                temp += ' ';
-            if (formString.name[3])
-                temp += '#';
-            if (formString.name[4])
-                temp += '0';
+            if(formString.array[0]){temp += '+';}
+            if(formString.array[1]){temp += '-';}
+            if(formString.array[2]){temp += ' ';}
+            if(formString.array[3]){temp += '#';}
+            if(formString.array[4]){temp += '0';}
 
             temp += (std::to_string(formString.sz));
-
-            return final + formatImplementation(temp + str.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
-
+            return result + formatImplementation(temp + str.substr(item + 1, std::string::npos), 0, output + result.length(), args...);
         } else {
 
-            while (item < str.length() && isdigit(str[item]))
+            while (item < str.length() && isdigit(str[item])){
                 temp += str[item++];
+            }
 
-            if (!temp.empty()) {
+            if(!temp.empty()){
                 formString.sz = stoi(temp);
                 temp.clear();
             }
+
         }
 
-        if (item < str.length() - 1 && str[item] == '.') {
-            ++item;
-            if (str[item] == '*') {
-                formString.precision = convert<int>(value);
+        if(item < str.length() - 1 && str[item] == '.'){
+            item++;
+
+            if(str[item] == '*'){
+                formString.accur = convert<int>(value);
                 temp = "%";
-                if (formString.name[0])
+
+                if(formString.array[0]){
                     temp += '+';
-                if (formString.name[1])
+                }
+                if(formString.array[1]){
                     temp += '-';
-                if (formString.name[2])
+                }
+                if(formString.array[2]){
                     temp += ' ';
-                if (formString.name[3])
+                }
+                if(formString.array[3]){
                     temp += '#';
-                if (formString.name[4])
+                }
+                if(formString.array[4]){
                     temp += '0';
-                if (formString.sz != 0)
+                }
+                if(formString.sz != 0){
                     temp += (std::to_string(formString.sz));
+                }
                 temp += '.';
-                temp += (std::to_string(formString.precision));
-                return final + formatImplementation(temp + str.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
+                temp += (std::to_string(formString.accur));
+                return result + formatImplementation(temp + str.substr(item + 1, std::string::npos), 0, output + result.length(), args...);
             } else {
-                if (str[item] == '-') {
-                    formString.precision = -1;
+                if(str[item] == '-'){
+                    formString.accur = -1;
                     item++;
+                } else {
+                    formString.accur = 1;
                 }
-                if (str[item] != '-'){
-                    formString.precision = 1;
-                }
-
-                while (item < str.length() && isdigit(str[item]))
+                while (item < str.length() && isdigit(str[item])){
                     temp += str[item++];
-
-                if (!temp.empty()) {
-                    formString.precision *= stoi(temp);
-                    temp.clear();
                 }
-                if (temp.empty()) {
-                    formString.precision = 0;
+
+                if(!temp.empty()){
+                    formString.accur *= stoi(temp);
+                    temp.clear();
+                } else {
+                    formString.accur = 0;
                 }
             }
         }
 
-        while (item < str.length() &&
-               (str[item] == 'h' ||
+        while(item < str.length() && (str[item] == 'h' ||
                 str[item] == 'l' ||
                 str[item] == 'j' ||
                 str[item] == 'z' ||
                 str[item] == 't' ||
-                str[item] == 'L'
-               )) {
-            nya = (formString.length == standart);
+                str[item] == 'L')){
+
             if (str[item++] == 'h') {
-                long hex = (nya) ? h : error;
-                formString.length = (formString.length == h) ? hh : hex;
+                if (formString.length == h) {
+                    formString.length = hh;
+                } else {
+                    if (formString.length == standart) {
+                        formString.length = h;
+                    } else {
+                        formString.length = error;
+                    }
+                }
             } else if (str[item++] == 'l') {
-                long lex = (nya) ? l : error;
-                formString.length = (formString.length == l) ? ll : lex;
+                if (formString.length == l) {
+                    formString.length = ll;
+                } else {
+                    if (formString.length == standart) {
+                        formString.length = l;
+                    } else {
+                        formString.length = error;
+                    }
+                }
             } else if (str[item++] == 'j') {
-                formString.length = (nya) ? j : error;
+                if (formString.length == standart) {
+                    formString.length = j;
+                } else {
+                    formString.length = error;
+                }
             } else if (str[item++] == 'z') {
-                formString.length = (nya) ? z : error;
+                if (formString.length == standart) {
+                    formString.length =z;
+                } else {
+                    formString.length = error;
+                }
             } else if (str[item++] == 't') {
-                formString.length = (nya) ? t : error;
+                if (formString.length == standart) {
+                    formString.length = t;
+                }else {
+                    formString.length = error;
+                }
             } else if (str[item++] == 'L') {
-                formString.length = (nya) ? L : error;
+                if (formString.length == standart) {
+                    formString.length =  L;
+                } else {
+                    formString.length = error;
+                }
             }
         }
 
-
-        if (formString.length == error) {
+        if(formString.length == error){
             throw std::invalid_argument("Problem with length");
         }
 
-        if (item == str.length()) {
+        if(item == str.length()){
             throw std::invalid_argument("Problem with converting");
         }
 
         std::stringstream out;
-
-        if (formString.name[0])
+        if(formString.array[0]){
             out << std::showpos;
-
-        if (formString.name[1])
+        }
+        if(formString.array[1]){
             out << std::left;
-
-        if (formString.sz != 0)
+        }
+        if(formString.sz != 0){
             out.width(formString.sz);
-
-        if (formString.precision >= 0)
-            out.precision(formString.precision);
-
-        if (formString.name[3])
+        }
+        if(formString.accur >= 0){
+            out.precision(formString.accur);
+        }
+        if(formString.array[3]){
             out << std::showbase << std::showpoint;
+        }
+
 
 
         formString.type = str[item++];
-
         if (formString.type == 'd' || formString.type == 'i') {
-
             if (formString.length == hh) {
                 d = convert<signed char>(value);
             } else if (formString.length == h) {
@@ -365,15 +454,10 @@ namespace Format {
             } else {
                 throw std::invalid_argument("Problem with length");
             }
-
-            final += (print_num(formString, d));
-
+            result += print_num(formString, d);
         } else if (formString.type == 'X') {
-
-            formString.name[5] = true;
-
-        } else if (formString.type == 'x' || formString.type == 'o' || formString.type == 'u') {
-
+            formString.array[5] = true;
+        } else if (formString.type == 'x' || formString.type == 'o' || formString.type ==  'u') {
             if (formString.length == hh) {
                 u = convert<unsigned char>(value);
             } else if (formString.length == h) {
@@ -393,24 +477,17 @@ namespace Format {
             } else {
                 throw std::invalid_argument("Problem with length");
             }
-
-            final += (print_num(formString, u));
-
+            result += print_num(formString, u);
         } else if (formString.type == 'E' ||
-                   formString.type == 'G' ||
-                   formString.type == 'A') {
-
-            formString.name[5] = true;
-
+                formString.type == 'G' ||
+                formString.type == 'A') {
+            formString.array[5] = true;
         } else if (formString.type == 'e' ||
-                   formString.type == 'g' ||
-                   formString.type == 'a' ||
-                   formString.type == 'F' ||
-                   formString.type == 'f'
-                ){
-
-            formString.name[6] = true;
-
+                formString.type == 'g' ||
+                formString.type == 'a' ||
+                formString.type == 'F' ||
+                formString.type == 'f') {
+            formString.array[6] = true;
             if (formString.length == l || formString.length == standart) {
                 f = convert<double>(value);
             } else if (formString.length == L) {
@@ -418,59 +495,42 @@ namespace Format {
             } else {
                 throw std::invalid_argument("Problem with length");
             }
-
-            final += (print_num(formString, f));
-
+            result += print_num(formString, f);
         } else if (formString.type == 'c') {
-
             if (formString.length == l) {
             } else if (formString.length == standart) {
                 out << convert<unsigned char>(value);
             } else {
                 throw std::invalid_argument("Problem with length");
             }
-
-            final += (out.str());
-
+            result += out.str();
         } else if (formString.type == 's') {
-
             std::string str;
-
             if (formString.length == l) {
             } else if (formString.length == standart) {
                 str = convert<std::string>(value);
             } else {
                 throw std::invalid_argument("Problem with length");
             }
-
-            if (formString.precision >= 0 && str.length() > (unsigned) formString.precision) {
-                str = str.substr(0, formString.precision);
+            if (formString.accur >= 0 && str.length() > (unsigned) formString.accur) {
+                str = str.substr(0, formString.accur);
             }
-
             out << str;
-            final += (out.str());
-
-        } else if (formString.type == 'p') {
-
+            result += out.str();
+        } else if ( formString.type == 'p') {
             if (formString.length != standart) {
                 throw std::invalid_argument("Problem with length");
             }
-
-            out << std::setfill(formString.name[4] ? '0' : ' ');
+            out << std::setfill(formString.array[4] ? '0' : ' ');
             snprintf(nil_p, 2, "%p", convert<void *>(value));
-
             if (nil_p[0] != '(' && convert<void *>(value) != NULL && convert<void *>(value) != nullptr) {
                 out << convert<void *>(value);
             } else {
                 out << "(nil)";
             }
-
-            final += (out.str());
-
+            result += out.str();
         } else if (formString.type == 'n') {
-
-            output += final.length();
-
+            output += result.length();
             if (formString.length == hh) {
                 *(convert<signed char *>(value)) = output;
             } else if (formString.length == h) {
@@ -490,18 +550,13 @@ namespace Format {
             } else {
                 throw std::invalid_argument("Problem with length");
             }
-
         } else if (formString.type == '@') {
-
-            final += (print_at(value));
-
-        } else{
-
+            result += print_at(value);
+        } else {
             throw std::invalid_argument("Strange format specifier: '" + str[item] + '\'');
-
         }
 
-        return final + formatImplementation(str, item, output + final.length(), args...);
+        return result + formatImplementation(str, item, output + result.length(), args...);
     }
 }
 
@@ -530,4 +585,5 @@ namespace Format {
 template<typename... Args> std::string format(const std::string& str, const Args&... args){
     return Format::formatImplementation(str, 0, 0, args...);
 }
+
 #endif
