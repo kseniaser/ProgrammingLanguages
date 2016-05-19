@@ -205,7 +205,7 @@ namespace Format {
         } else {
             
             while (pos < fmt.length() && isdigit(fmt[pos])){
-                temp += fmt[pos++]
+                temp += fmt[pos++];
             }
             //for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
             if(!temp.empty()){
