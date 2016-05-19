@@ -171,24 +171,18 @@ namespace Format {
         std::string temp = "";
 
         while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
-            switch(fmt[pos++]){
-                case '-':
+            if (fmt[pos++] == '-') {
                     fm.left_justify = true;
                     fm.left_pad = false;
-                    break;
-                case '+':
+            } else if (fmt[pos++] == '+') {
                     fm.force_sign = true;
                     fm.space_or_sign = false;
-                    break;
-                case ' ':
+            } else if (fmt[pos++] == ' ') {
                     fm.space_or_sign = !fm.force_sign;
-                    break;
-                case '#':
+            } else if (fmt[pos++] == '#') {
                     fm.alt_num_format = true;
-                    break;
-                case '0':
+            } else if (fmt[pos++] == '0') {
                     fm.left_pad = !fm.left_justify;
-                    break;
             }
         }
 
