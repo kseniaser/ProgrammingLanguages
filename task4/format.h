@@ -95,19 +95,19 @@ namespace Format {
             std::string>::value && std::is_pointer<T>::value,
             std::string>::type print_at(T& value){
 
-        std::string r;
+        std::string final;
         if(value == 0){
-            r += "nullptr<";
-            r += typeid(*value).name();
-            r += ">";
+            final += "nullptr<";
+            final += typeid(*value).name();
+            final += ">";
         } else {
-            r += "ptr<";
-            r += typeid(*value).name();
-            r += ">(";
-            r+= format("%@", *value);
-            r += ")";
+            final += "ptr<";
+            final += typeid(*value).name();
+            final += ">(";
+            final+= format("%@", *value);
+            final += ")";
         }
-        return r;
+        return final;
     }
 
     /*
@@ -115,72 +115,83 @@ namespace Format {
      * If the argument does not match its specifier, it throws an exception
      */
 
-    template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
+    template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t strF, T value){
 
-        if(!fm.array[6] && fm.accur >= 0 && fm.array[4]) {
-            fm.array[4] = false;
+        if(!strF.array[6] && strF.accur >= 0 && strF.array[4]) {
+            strF.array[4] = false;
         }
-        if(!fm.array[6] && fm.accur < 0 ){
-            fm.accur = 1;
+        if(!strF.array[6] && strF.accur < 0 ){
+            strF.accur = 1;
         }
 
         std::string temp = "%";
 
-        if(fm.array[0]){temp += '+';}
-        if(fm.array[1]){temp += '-';}
-        if(fm.array[2]){temp += ' ';}
-        if(fm.array[3]){temp += '#';}
-        if(fm.array[4]){temp += '0';}
-        if(fm.accur >= 0){
+        if(strF.array[0]){
+            temp += '+';
+        }
+        if(strF.array[1]){
+            temp += '-';
+        }
+        if(strF.array[2]){
+            temp += ' ';}
+        if(strF.array[3]){temp += '#';
+        }
+        if(strF.array[4]){
+            temp += '0';
+        }
+        if(strF.accur >= 0){
             temp += '.';
-            if (fm.accur > 1024){
+            if (strF.accur > 1024){
                 temp += std::to_string(1024);
             } else {
-                temp += std::to_string(fm.accur);
+                temp += std::to_string(strF.accur);
             }
         }
         char buffer[2048];
 
-        if (fm.array[6] && fm.length == L)
-        {temp += 'L';}
-        if (fm.array[6] && fm.length == l)
-        {temp += 'l';}
-        if (fm.array[6])
-        {temp += fm.type;}
-        if(!fm.array[6]){
+        if (strF.array[6] && strF.length == L) {
+            temp += 'L';
+        }
+        if (strF.array[6] && strF.length == l) {
+            temp += 'l';
+        }
+        if (strF.array[6]) {
+            temp += strF.type;
+        }
+        if(!strF.array[6]){
             temp += 'j';
-            temp += fm.type;
+            temp += strF.type;
         }
 
         snprintf(buffer, sizeof(buffer), temp.c_str(), value);
 
         std::string r = buffer;
 
-        if(fm.accur > 1024 && r.size() > 512 && fm.array[6]){
-            r += char_seq('0', fm.accur - r.size() + r.find_first_of('.') + 1);
+        if(strF.accur > 1024 && r.size() > 512 && strF.array[6]){
+            r += char_seq('0', strF.accur - r.size() + r.find_first_of('.') + 1);
         }
-        if(fm.accur > 1024 && r.size() > 512 && !fm.array[6]){
+        if(strF.accur > 1024 && r.size() > 512 && !strF.array[6]){
             if (r[0]=='0'){
-                r = r.substr(0, 2) + char_seq('0', fm.accur - r.size()) + r.substr(2);
+                r = r.substr(0, 2) + char_seq('0', strF.accur - r.size()) + r.substr(2);
             } else {
-                r = r.substr(0, 2) + char_seq('0', fm.accur - r.size() + 1) + r.substr(2);
+                r = r.substr(0, 2) + char_seq('0', strF.accur - r.size() + 1) + r.substr(2);
             }
         }
 
 
-        if((unsigned) fm.sz > r.size()){
-            if(fm.array[1]){
-                r +=char_seq(' ', fm.sz - r.size());
+        if((unsigned) strF.sz > r.size()){
+            if(strF.array[1]){
+                r +=char_seq(' ', strF.sz - r.size());
             } else {
-                if(fm.array[4]){
+                if(strF.array[4]){
                     if (r.find_first_of("+- ") == 0){
-                        r =  r[0] + char_seq('0', fm.sz - r.size()) + r.substr(1);
+                        r =  r[0] + char_seq('0', strF.sz - r.size()) + r.substr(1);
                     } else {
-                        r =  char_seq('0', fm.sz - r.size()) + r;
+                        r =  char_seq('0', strF.sz - r.size()) + r;
                         //r += r;
                     }
                 } else {
-                    r = char_seq(' ', fm.sz - r.size()) + r;
+                    r = char_seq(' ', strF.sz - r.size()) + r;
                     //r += r;
                 }
             }
@@ -189,306 +200,325 @@ namespace Format {
         return r;
     }
 
-    template<typename First, typename... Rest> std::string format_impl(const std::string& fmt, unsigned pos, unsigned printed, const First& value, const Rest&... args){
-        std::string result = find_spec(fmt, pos, true);
-        format_t fm;
-        std::string temp = "";
+    template<typename First, typename... Rest> 
+    std::string format_impl(const std::string& stringF, 
+                            unsigned item, 
+                            unsigned output, 
+                            const First& value,
+                            const Rest&... args){
+        
+        std::string final = find_spec(stringF, item, true);
+        format_t formtH;
+        std::string param = "";
+        intmax_t maxInt;
+        uintmax_t maxUi;
+        double frfr;
+        char masNil[6];
 
-        intmax_t d;
-        uintmax_t u;
-        double f;
-        char nil_p[6];
-
-        while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
-            if (fmt[pos] == '-') {
-                fm.array[1] = true;
-                fm.array[4] = false;
-            } else if (fmt[pos] == '+') {
-                fm.array[0] = true;
-                fm.array[2] = false;
-            } else if (fmt[pos] == ' ') {
-                fm.array[2] = !fm.array[0];
-            } else if (fmt[pos] == '#') {
-                fm.array[3] = true;
-            } else if (fmt[pos] == '0') {
-                fm.array[4] = !fm.array[1];
+        while(item < stringF.length() && 
+                (stringF[item] == '-' || 
+                        stringF[item] == '+' || 
+                        stringF[item] == ' ' || 
+                        stringF[item] == '#' || 
+                        stringF[item] == '0')){
+            
+            if (stringF[item] == '-') {
+                formtH.array[1] = true;
+                formtH.array[4] = false;
+            } else if (stringF[item] == '+') {
+                formtH.array[0] = true;
+                formtH.array[2] = false;
+            } else if (stringF[item] == ' ') {
+                formtH.array[2] = !formtH.array[0];
+            } else if (stringF[item] == '#') {
+                formtH.array[3] = true;
+            } else if (stringF[item] == '0') {
+                formtH.array[4] = !formtH.array[1];
             }
-            ++pos;
+            ++item;
         }
 
-        if(pos < fmt.length() && fmt[pos] == '*'){
-            fm.sz = convert<int>(value);
-            if(fm.sz < 0){
-                fm.sz *= -1;
-                fm.array[1] = true;
-                fm.array[4] = false;
+        if(item < stringF.length() && stringF[item] == '*'){
+            formtH.sz = convert<int>(value);
+            if(formtH.sz < 0){
+                formtH.sz *= -1;
+                formtH.array[1] = true;
+                formtH.array[4] = false;
             }
-            temp = "%";
-            if(fm.array[0]){temp += '+';}
-            if(fm.array[1]){temp += '-';}
-            if(fm.array[2]){temp += ' ';}
-            if(fm.array[3]){temp += '#';}
-            if(fm.array[4]){temp += '0';}
-            temp += std::to_string(fm.sz);
-            return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
+            param = "%";
+            if(formtH.array[0]){param += '+';}
+            if(formtH.array[1]){param += '-';}
+            if(formtH.array[2]){param += ' ';}
+            if(formtH.array[3]){param += '#';}
+            if(formtH.array[4]){param += '0';}
+            param += std::to_string(formtH.sz);
+            return final + format_impl(param + stringF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
         } else {
 
-            while (pos < fmt.length() && isdigit(fmt[pos])){
-                temp += fmt[pos++];
+            while (item < stringF.length() && isdigit(stringF[item])){
+                param += stringF[item++];
             }
-            if(!temp.empty()){
-                fm.sz = stoi(temp);
-                temp.clear();
+            if(!param.empty()){
+                formtH.sz = stoi(param);
+                param.clear();
             }
         }
 
-        if(pos < fmt.length() - 1 && fmt[pos] == '.'){
-            ++pos;
-            if(fmt[pos] == '*'){
-                fm.accur = convert<int>(value);
-                temp = "%";
-                if(fm.array[0]){temp += '+';}
-                if(fm.array[1]){temp += '-';}
-                if(fm.array[2]){temp += ' ';}
-                if(fm.array[3]){temp += '#';}
-                if(fm.array[4]){temp += '0';}
-                if(fm.sz != 0){temp += std::to_string(fm.sz);}
-                temp += '.';
-                temp += std::to_string(fm.accur);
-                return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
+        if(item < stringF.length() - 1 && stringF[item] == '.'){
+            ++item;
+            if(stringF[item] == '*'){
+                formtH.accur = convert<int>(value);
+                param = "%";
+                if(formtH.array[0]){param += '+';}
+                if(formtH.array[1]){param += '-';}
+                if(formtH.array[2]){param += ' ';}
+                if(formtH.array[3]){param += '#';}
+                if(formtH.array[4]){param += '0';}
+                if(formtH.sz != 0){param += std::to_string(formtH.sz);}
+                param += '.';
+                param += std::to_string(formtH.accur);
+                return final + format_impl(param + stringF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
             } else {
-                if(fmt[pos] == '-'){
-                    fm.accur = -1;
-                    ++pos;
+                if(stringF[item] == '-'){
+                    formtH.accur = -1;
+                    ++item;
                 } else {
-                    fm.accur = 1;
+                    formtH.accur = 1;
                 }
-                while (pos < fmt.length() && isdigit(fmt[pos])){
-                    temp += fmt[pos++];
+                while (item < stringF.length() && isdigit(stringF[item])){
+                    param += stringF[item++];
                 }
-                if(temp.empty()){
-                    fm.accur = 0;
+                if(param.empty()){
+                    formtH.accur = 0;
                 }
-                if (!temp.empty()) {
-                    fm.accur *= stoi(temp);
-                    temp.clear();
+                if (!param.empty()) {
+                    formtH.accur *= stoi(param);
+                    param.clear();
                 }
             }
         }
 
-        while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
-            if (fmt[pos]== 'h') {
-                if (fm.length == h) {
-                    fm.length = hh;
+        while(item < stringF.length() 
+              && (stringF[item] == 'h' || 
+                stringF[item] == 'l' || 
+                stringF[item] == 'j' || 
+                stringF[item] == 'z' || 
+                stringF[item] == 't' || 
+                stringF[item] == 'L')){
+            
+            if (stringF[item]== 'h') {
+                if (formtH.length == h) {
+                    formtH.length = hh;
                 } else{
-                    if (fm.length ==  standart){
-                        fm.length = h;
+                    if (formtH.length ==  standart){
+                        formtH.length = h;
                     } else {
-                        fm.length = error;
+                        formtH.length = error;
                     }
                 }
-            } else if (fmt[pos]== 'l') {
-                if (fm.length == l) {
-                    fm.length = ll;
+            } else if (stringF[item]== 'l') {
+                if (formtH.length == l) {
+                    formtH.length = ll;
                 } else{
-                    if (fm.length == standart){
-                        fm.length = l;
+                    if (formtH.length == standart){
+                        formtH.length = l;
                     } else {
-                        fm.length = error;
+                        formtH.length = error;
                     }
                 }
-            } else if (fmt[pos]=='j') {
-                if (fm.length == standart) {
-                    fm.length = j;
+            } else if (stringF[item]=='j') {
+                if (formtH.length == standart) {
+                    formtH.length = j;
                 } else {
-                    fm.length = error;
+                    formtH.length = error;
                 }
-            } else if (fmt[pos]== 'z') {
-                if (fm.length == standart) {
-                    fm.length = z;
+            } else if (stringF[item]== 'z') {
+                if (formtH.length == standart) {
+                    formtH.length = z;
                 } else {
-                    fm.length = error;
+                    formtH.length = error;
                 }
-            }else if (fmt[pos]== 't') {
-                if (fm.length == standart) {
-                    fm.length = t;
+            }else if (stringF[item]== 't') {
+                if (formtH.length == standart) {
+                    formtH.length = t;
                 } else {
-                    fm.length = error;
+                    formtH.length = error;
                 }
-            } else if (fmt[pos]== 'L') {
-                if (fm.length == standart) {
-                    fm.length = L;
+            } else if (stringF[item]== 'L') {
+                if (formtH.length == standart) {
+                    formtH.length = L;
                 } else {
-                    fm.length = error;
+                    formtH.length = error;
                 }
             }
-            ++ pos;
+            ++ item;
         }
 
-        if(fm.length == error){
+        if(formtH.length == error){
             throw std::invalid_argument("Unknown length specifier");
         }
 
-        if(pos == fmt.length()){
+        if(item == stringF.length()){
             throw std::invalid_argument("Сonversion lacks type at end of format");
         }
 
         std::stringstream out;
-        if(fm.array[0]){
+        
+        if(formtH.array[0]){
             out << std::showpos;
         }
-        if(fm.array[1]){
+        if(formtH.array[1]){
             out << std::left;
         }
-        if(fm.sz != 0){
-            out.width(fm.sz);
+        if(formtH.sz != 0){
+            out.width(formtH.sz);
         }
-        if(fm.accur >= 0){
-            out.precision(fm.accur);
+        if(formtH.accur >= 0){
+            out.precision(formtH.accur);
         }
-        if(fm.array[3]){
+        if(formtH.array[3]){
             out << std::showbase << std::showpoint;
         }
 
-        fm.type = fmt[pos++];
-        switch(fm.type){
+        formtH.type = stringF[item++];
+        switch(formtH.type){
             case 'd':
             case 'i':
-                if (fm.length == hh) {
-                    d = convert<signed char>(value);
-                } else if (fm.length == h) {
-                    d = convert<short int>(value);
-                } else if (fm.length == l) {
-                    d = convert<long int>(value);
-                } else if (fm.length == ll) {
-                    d = convert<long long int>(value);
-                } else if (fm.length == j) {
-                    d = convert<intmax_t>(value);
-                } else if (fm.length == z) {
-                    d = convert<size_t>(value);
-                } else if (fm.length == t) {
-                    d = convert<ptrdiff_t>(value);
-                } else if (fm.length == standart) {
-                    d = convert<int>(value);
+                if (formtH.length == hh) {
+                    maxInt = convert<signed char>(value);
+                } else if (formtH.length == h) {
+                    maxInt = convert<short int>(value);
+                } else if (formtH.length == l) {
+                    maxInt = convert<long int>(value);
+                } else if (formtH.length == ll) {
+                    maxInt = convert<long long int>(value);
+                } else if (formtH.length == j) {
+                    maxInt = convert<intmax_t>(value);
+                } else if (formtH.length == z) {
+                    maxInt = convert<size_t>(value);
+                } else if (formtH.length == t) {
+                    maxInt = convert<ptrdiff_t>(value);
+                } else if (formtH.length == standart) {
+                    maxInt = convert<int>(value);
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                result += print_num(fm, d);
+                final += print_num(formtH, maxInt);
                 break;
             case 'X':
-                fm.array[5] = true;
+                formtH.array[5] = true;
             case 'x':
             case 'o':
             case 'u':
-                if (fm.length == hh) {
-                    u = convert<unsigned char>(value);
-                } else if (fm.length == h) {
-                    u = convert<unsigned short int>(value);
-                } else if (fm.length == l) {
-                    u = convert<unsigned long int>(value);
-                } else if (fm.length == ll) {
-                    u = convert<unsigned long long int>(value);
-                } else if (fm.length == j) {
-                    u = convert<uintmax_t>(value);
-                } else if (fm.length == z) {
-                    u = convert<size_t>(value);
-                } else if (fm.length == t) {
-                    u = convert<ptrdiff_t>(value);
-                } else if (fm.length == standart) {
-                    u = convert<unsigned int>(value);
+                if (formtH.length == hh) {
+                    maxUi = convert<unsigned char>(value);
+                } else if (formtH.length == h) {
+                    maxUi = convert<unsigned short int>(value);
+                } else if (formtH.length == l) {
+                    maxUi = convert<unsigned long int>(value);
+                } else if (formtH.length == ll) {
+                    maxUi = convert<unsigned long long int>(value);
+                } else if (formtH.length == j) {
+                    maxUi = convert<uintmax_t>(value);
+                } else if (formtH.length == z) {
+                    maxUi = convert<size_t>(value);
+                } else if (formtH.length == t) {
+                    maxUi = convert<ptrdiff_t>(value);
+                } else if (formtH.length == standart) {
+                    maxUi = convert<unsigned int>(value);
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                result += print_num(fm, u);
+                final += print_num(formtH, maxUi);
                 break;
             case 'E':
             case 'G':
             case 'A':
-                fm.array[5] = true;
+                formtH.array[5] = true;
             case 'e':
             case 'g':
             case 'a':
             case 'F':
             case 'f':
-                fm.array[6] = true;
-                if (fm.length == l){
-                } else if (fm.length == standart) {
-                    f = convert<double>(value);
-                } else if (fm.length == L) {
-                    f = convert<long double>(value);
+                formtH.array[6] = true;
+                if (formtH.length == l){
+                } else if (formtH.length == standart) {
+                    frfr = convert<double>(value);
+                } else if (formtH.length == L) {
+                    frfr = convert<long double>(value);
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                result += print_num(fm, f);
+                final += print_num(formtH, frfr);
                 break;
             case 'c':
-                if (fm.length == l) {
-                } else if (fm.length == standart) {
+                if (formtH.length == l) {
+                } else if (formtH.length == standart) {
                     out << convert<unsigned char>(value);
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                result += out.str();
+                final += out.str();
                 break;
             case 's': {
                 std::string str;
-                if (fm.length == l) {
-                } else if (fm.length == standart) {
+                if (formtH.length == l) {
+                } else if (formtH.length == standart) {
                     str = convert<std::string>(value);
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                if(fm.accur >= 0 && str.length() > (unsigned) fm.accur){
-                    str = str.substr(0, fm.accur);
+                if(formtH.accur >= 0 && str.length() > (unsigned) formtH.accur){
+                    str = str.substr(0, formtH.accur);
                 }
                 out << str;
-                result += out.str();
+                final += out.str();
             }
                 break;
             case 'p':
-                if(fm.length != standart){
+                if(formtH.length != standart){
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                out << std::setfill(fm.array[4] ? '0' : ' ');
-                snprintf(nil_p, 2, "%p", convert<void*>(value));
-                if(nil_p[0] != '(' && convert<void*>(value) != NULL && convert<void*>(value) != nullptr){
+                out << std::setfill(formtH.array[4] ? '0' : ' ');
+                snprintf(masNil, 2, "%p", convert<void*>(value));
+                if(masNil[0] != '(' && convert<void*>(value) != NULL && convert<void*>(value) != nullptr){
                     out << convert<void*>(value);
                 } else {
                     out << "(nil)";
                 }
-                result += out.str();
+                final += out.str();
                 break;
             case 'n':
-                printed += result.length();
-                if (fm.length == hh) {
-                    *(convert<signed char*>(value)) = printed;
-                } else if (fm.length == h) {
-                    *(convert<short int*>(value)) = printed;
-                } else if (fm.length == l) {
-                    *(convert<long int*>(value)) = printed;
-                } else if (fm.length == ll) {
-                    *(convert<long long int*>(value)) = printed;
-                } else if (fm.length == j) {
-                    *(convert<intmax_t*>(value)) = printed;
-                } else if (fm.length == z) {
-                    *(convert<size_t*>(value)) = printed;
-                } else if (fm.length == t) {
-                    *(convert<ptrdiff_t*>(value)) = printed;
-                } else if (fm.length == standart) {
-                    *(convert<int*>(value)) = printed;
+                output += final.length();
+                if (formtH.length == hh) {
+                    *(convert<signed char*>(value)) = output;
+                } else if (formtH.length == h) {
+                    *(convert<short int*>(value)) = output;
+                } else if (formtH.length == l) {
+                    *(convert<long int*>(value)) = output;
+                } else if (formtH.length == ll) {
+                    *(convert<long long int*>(value)) = output;
+                } else if (formtH.length == j) {
+                    *(convert<intmax_t*>(value)) = output;
+                } else if (formtH.length == z) {
+                    *(convert<size_t*>(value)) = output;
+                } else if (formtH.length == t) {
+                    *(convert<ptrdiff_t*>(value)) = output;
+                } else if (formtH.length == standart) {
+                    *(convert<int*>(value)) = output;
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
                 break;
             case '@':
-                result += print_at(value);
+                final += print_at(value);
                 break;
             default:
-                throw std::invalid_argument("Unknown format specifier: '" + fmt[pos] + '\'');
+                throw std::invalid_argument("Unknown format specifier: '" + stringF[item] + '\'');
                 break;
         }
 
-        return result + format_impl(fmt, pos, printed + result.length(), args...);
+        return final + format_impl(stringF, item, output + final.length(), args...);
     }
 }
 
@@ -519,4 +549,3 @@ template<typename... Args> std::string format(const std::string& fmt, const Args
 }
 
 #endif
-
