@@ -237,12 +237,12 @@ namespace Format {
                 while (pos < fmt.length() && isdigit(fmt[pos])){
                     temp += fmt[pos++];
                 }
-                //for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
-                if(!temp.empty()){
+                if(temp.empty()){
+                    fm.precision = 0;
+                } 
+                if (!temp.empty()) {
                     fm.precision *= stoi(temp);
                     temp.clear();
-                } else {
-                    fm.precision = 0;
                 }
             }
         }
