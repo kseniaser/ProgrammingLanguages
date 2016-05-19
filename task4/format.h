@@ -170,10 +170,10 @@ namespace Format {
                     r = char_seq(' ', fm.width - r.size()) + r;
                 }
             }
-        }
+        }*/
 
         return r;
-    }*/
+    }
 
     template<typename First, typename... Rest> std::string format_impl(const std::string& fmt, unsigned pos, unsigned printed, const First& value, const Rest&... args){
         std::string result = find_spec(fmt, pos, true);
