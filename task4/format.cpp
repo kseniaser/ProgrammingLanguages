@@ -1,7 +1,7 @@
 #include "format.h"
 
 namespace Format {
-    std::string char_seq(char c, unsigned n){
+    std::string seq(char c, unsigned n){
         std::string result = "";
         for(unsigned i = 1; i <= n; i++){
             result += c;
@@ -9,7 +9,7 @@ namespace Format {
         return result;
     }
 
-    std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
+    std::string spec(const std::string &fmt, unsigned &pos, bool has_arguments){
         std::string result = "";
         while(pos < fmt.length()){
             while(pos < fmt.length() && fmt[pos] != '%'){
@@ -38,8 +38,8 @@ namespace Format {
         return result;
     }
 
-    std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed){
-        return find_spec(fmt, pos, false);
+    std::string impl(const std::string &fmt, unsigned pos, unsigned printed){
+        return spec(fmt, pos, false);
     }
 
     std::string print_at(nullptr_t value){
