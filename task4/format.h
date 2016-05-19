@@ -149,7 +149,11 @@ namespace Format {
                 r +=char_seq(' ', fm.width - r.size());
             } else {
                 if(fm.left_pad){
-                    r = (r.find_first_of("+- ") == 0) ? r[0] + char_seq('0', fm.width - r.size()) + r.substr(1) : char_seq('0', fm.width - r.size()) + r;
+                    if (r.find_first_of("+- ") == 0){
+                        r =  r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
+                    } else {
+                        r =  char_seq('0', fm.width - r.size()) + r;
+                    }
                 } else {
                     r = char_seq(' ', fm.width - r.size()) + r;
                 }
