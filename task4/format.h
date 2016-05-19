@@ -223,7 +223,7 @@ namespace Format {
                 if(fm.space_or_sign){temp += ' ';}
                 if(fm.alt_num_format){temp += '#';}
                 if(fm.left_pad){temp += '0';}
-                if(fm.width != 0){temp ++= td::to_string(fm.width);}
+                if(fm.width != 0){temp ++= std::to_string(fm.width);}
                 temp += '.';
                 temp += std::to_string(fm.precision);
                 return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
