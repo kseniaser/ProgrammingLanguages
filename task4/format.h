@@ -243,10 +243,6 @@ namespace Format {
         std::string result = specification(str, item, true);
         std::string temp = "";
         format_t formString;
-        intmax_t d;
-        uintmax_t u;
-        double f;
-        char nil_p[6];
 
         while(item < str.length() &&
                 (str[item] == '-' ||
@@ -431,7 +427,10 @@ namespace Format {
             out << std::showbase << std::showpoint;
         }
 
-
+        intmax_t d;
+        uintmax_t u;
+        double f;
+        char nil_p[6];
 
         formString.type = str[item++];
         if (formString.type == 'd' || formString.type == 'i') {
