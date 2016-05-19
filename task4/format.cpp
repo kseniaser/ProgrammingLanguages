@@ -1,48 +1,48 @@
 #include "format.h"
 
 namespace Format {
-    std::string seq(char c, unsigned n){
-        std::string final = "";
+    std::string char_seq(char c, unsigned n){
+        std::string result = "";
         for(unsigned i = 1; i <= n; i++){
-            final += c;
+            result += c;
         }
-        return final;
+        return result;
     }
 
-    std::string spec(const std::string &fmt, unsigned &item, bool notEmpty){
-        std::string final = "";
-        while(item < fmt.length()){
-            while(item < fmt.length() && fmt[item] != '%'){
-                final += fmt[item++];
+    std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
+        std::string result = "";
+        while(pos < fmt.length()){
+            while(pos < fmt.length() && fmt[pos] != '%'){
+                result += fmt[pos++];
             }
-            if(item >= fmt.length()){
-                if(notEmpty){
+            if(pos >= fmt.length()){
+                if(has_arguments){
                     throw std::invalid_argument("abundance of symbols");
                 }
-                return final;
+                return result;
             }
-            if(item == fmt.length() - 1){
+            if(pos == fmt.length() - 1){
                 throw std::invalid_argument("failure in format");
             }
-            if(fmt[item + 1] != '%'){
-                ++item;
-                if(!notEmpty){
+            if(fmt[pos + 1] != '%'){
+                ++pos;
+                if(!has_arguments){
                     throw std::out_of_range("lack of symbols");
                 }
                 break;
             } else {
-                final += '%';
-                item += 2;
+                result += '%';
+                pos += 2;
             }
         }
-        return final;
+        return result;
     }
 
-    std::string impl(const std::string &fmt, unsigned item, unsigned output){
-        return spec(fmt, item, false);
+    std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed){
+        return find_spec(fmt, pos, false);
     }
 
-    std::string printVal(nullptr_t value){
+    std::string print_at(nullptr_t value){
         return "nullptr";
     }
 }
