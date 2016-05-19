@@ -356,33 +356,24 @@ namespace Format {
             case 'x':
             case 'o':
             case 'u':
-                switch (fm.length){
-                    case len_hh:
+                if (fm.length == len_hh) {
                         u = convert<unsigned char>(value);
-                        break;
-                    case len_h:
+                } else if (fm.length == len_h) {
                         u = convert<unsigned short int>(value);
-                        break;
-                    case len_l:
+                } else if (fm.length == len_l) {
                         u = convert<unsigned long int>(value);
-                        break;
-                    case len_ll:
+                } else if (fm.length == len_ll) {
                         u = convert<unsigned long long int>(value);
-                        break;
-                    case len_j:
+                } else if (fm.length == len_j) {
                         u = convert<uintmax_t>(value);
-                        break;
-                    case len_z:
+                } else if (fm.length == len_z) {
                         u = convert<size_t>(value);
-                        break;
-                    case len_t:
+                } else if (fm.length == len_t) {
                         u = convert<ptrdiff_t>(value);
-                        break;
-                    case len_default:
+                } else if (fm.length == len_default) {
                         u = convert<unsigned int>(value);
-                        break;
-                    default:
-                        throw std::invalid_argument("Unsupported length specifier");
+                } else {
+                    throw std::invalid_argument("Unsupported length specifier");
                 }
                 result.append(print_num(fm, u));
                 break;
