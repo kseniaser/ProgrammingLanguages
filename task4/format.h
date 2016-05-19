@@ -28,7 +28,7 @@ namespace Format {
         bool array[8] = {false};
         int sz = 0, accur = -1;
         char type;
-        
+
     };
 
     template<typename To, typename From> typename
@@ -41,11 +41,11 @@ namespace Format {
         throw std::invalid_argument("Invalid argument type");
     }
 
-    std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments);
+    std::string spec(const std::string &fmt, unsigned &item, bool notEmpty);
 
-    std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed);
+    std::string impl(const std::string &fmt, unsigned item, unsigned output);
 
-    std::string char_seq(char c, unsigned n);
+    std::string seq(char c, unsigned n);
 
     /*
     * if the argument is  nullptr_t – prints nullptr
@@ -56,35 +56,35 @@ namespace Format {
     * if non of modifications is possible – throws exception
     */
 
-    std::string print_at(nullptr_t value);
+    std::string printVal (nullptr_t value);
 
     template<typename T> typename
                     std::enable_if<!std::is_integral<T>::value && !std::is_convertible<T,
-                    std::string>::value && !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
+                    std::string>::value && !std::is_pointer<T>::value, std::string>::type printVal(const T& value){
         throw std::invalid_argument("Invalid argument type");
     }
 
-    template<typename T> typename std::enable_if<std::is_integral<T>::value, std::string>::type print_at(T value){
+    template<typename T> typename std::enable_if<std::is_integral<T>::value, std::string>::type printVal(T value){
         return std::to_string(value);
     }
 
-    template<typename T, int num> typename
+    template<typename T, int m> typename
                     std::enable_if<!std::is_convertible<T*,
                     std::string>::value,
-                    std::string>::type print_at(const T (&a)[num]) {
+                    std::string>::type printVal(const T (&a)[m]) {
 
-        std::string r = "[";
-        for(int i = 0; i < num - 1; i++){
-            r += (std::to_string(a[i]) + ", ");
+        std::string final = "[";
+        for(int i = 0; i < m - 1; i++){
+            final += (std::to_string(a[i]) + ", ");
         }
-        r += (std::to_string(a[num - 1]) + ']');
-        return r;
+        final += (std::to_string(a[m - 1]) + ']');
+        return final;
     }
 
     template<typename T> typename
                   std::enable_if<std::is_convertible<T,
                   std::string>::value,
-                  std::string>::type print_at(const T& value){
+                  std::string>::type ptintVal(const T& value){
 
         return value;
 
@@ -93,7 +93,7 @@ namespace Format {
     template<typename T> typename
             std::enable_if<!std::is_array<T>::value && !std::is_convertible<T,
             std::string>::value && std::is_pointer<T>::value,
-            std::string>::type print_at(T& value){
+            std::string>::type printVal(T& value){
 
         std::string final;
         if(value == 0){
@@ -115,7 +115,7 @@ namespace Format {
      * If the argument does not match its specifier, it throws an exception
      */
 
-    template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t strF, T value){
+    template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type printNum(format_t strF, T value){
 
         if(!strF.array[6] && strF.accur >= 0 && strF.array[4]) {
             strF.array[4] = false;
@@ -168,30 +168,30 @@ namespace Format {
         std::string r = buffer;
 
         if(strF.accur > 1024 && r.size() > 512 && strF.array[6]){
-            r += char_seq('0', strF.accur - r.size() + r.find_first_of('.') + 1);
+            r += seq('0', strF.accur - r.size() + r.find_first_of('.') + 1);
         }
         if(strF.accur > 1024 && r.size() > 512 && !strF.array[6]){
             if (r[0]=='0'){
-                r = r.substr(0, 2) + char_seq('0', strF.accur - r.size()) + r.substr(2);
+                r = r.substr(0, 2) + seq('0', strF.accur - r.size()) + r.substr(2);
             } else {
-                r = r.substr(0, 2) + char_seq('0', strF.accur - r.size() + 1) + r.substr(2);
+                r = r.substr(0, 2) + seq('0', strF.accur - r.size() + 1) + r.substr(2);
             }
         }
 
 
         if((unsigned) strF.sz > r.size()){
             if(strF.array[1]){
-                r +=char_seq(' ', strF.sz - r.size());
+                r +=seq(' ', strF.sz - r.size());
             } else {
                 if(strF.array[4]){
                     if (r.find_first_of("+- ") == 0){
-                        r =  r[0] + char_seq('0', strF.sz - r.size()) + r.substr(1);
+                        r =  r[0] + seq('0', strF.sz - r.size()) + r.substr(1);
                     } else {
-                        r =  char_seq('0', strF.sz - r.size()) + r;
+                        r =  seq('0', strF.sz - r.size()) + r;
                         //r += r;
                     }
                 } else {
-                    r = char_seq(' ', strF.sz - r.size()) + r;
+                    r = seq(' ', strF.sz - r.size()) + r;
                     //r += r;
                 }
             }
@@ -200,14 +200,14 @@ namespace Format {
         return r;
     }
 
-    template<typename First, typename... Rest> 
-    std::string format_impl(const std::string& stringF, 
-                            unsigned item, 
-                            unsigned output, 
+    template<typename First, typename... Rest>
+    std::string impl(const std::string& stringF,
+                            unsigned item,
+                            unsigned output,
                             const First& value,
                             const Rest&... args){
-        
-        std::string final = find_spec(stringF, item, true);
+
+        std::string final = spec(stringF, item, true);
         format_t formtH;
         std::string param = "";
         intmax_t maxInt;
@@ -215,13 +215,13 @@ namespace Format {
         double frfr;
         char masNil[6];
 
-        while(item < stringF.length() && 
-                (stringF[item] == '-' || 
-                        stringF[item] == '+' || 
-                        stringF[item] == ' ' || 
-                        stringF[item] == '#' || 
+        while(item < stringF.length() &&
+                (stringF[item] == '-' ||
+                        stringF[item] == '+' ||
+                        stringF[item] == ' ' ||
+                        stringF[item] == '#' ||
                         stringF[item] == '0')){
-            
+
             if (stringF[item] == '-') {
                 formtH.array[1] = true;
                 formtH.array[4] = false;
@@ -252,7 +252,7 @@ namespace Format {
             if(formtH.array[3]){param += '#';}
             if(formtH.array[4]){param += '0';}
             param += std::to_string(formtH.sz);
-            return final + format_impl(param + stringF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
+            return final + impl(param + stringF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
         } else {
 
             while (item < stringF.length() && isdigit(stringF[item])){
@@ -277,7 +277,7 @@ namespace Format {
                 if(formtH.sz != 0){param += std::to_string(formtH.sz);}
                 param += '.';
                 param += std::to_string(formtH.accur);
-                return final + format_impl(param + stringF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
+                return final + impl(param + stringF.substr(item + 1, std::string::npos), 0, output + final.length(), args...);
             } else {
                 if(stringF[item] == '-'){
                     formtH.accur = -1;
@@ -298,14 +298,14 @@ namespace Format {
             }
         }
 
-        while(item < stringF.length() 
-              && (stringF[item] == 'h' || 
-                stringF[item] == 'l' || 
-                stringF[item] == 'j' || 
-                stringF[item] == 'z' || 
-                stringF[item] == 't' || 
+        while(item < stringF.length()
+              && (stringF[item] == 'h' ||
+                stringF[item] == 'l' ||
+                stringF[item] == 'j' ||
+                stringF[item] == 'z' ||
+                stringF[item] == 't' ||
                 stringF[item] == 'L')){
-            
+
             if (stringF[item]== 'h') {
                 if (formtH.length == h) {
                     formtH.length = hh;
@@ -363,7 +363,7 @@ namespace Format {
         }
 
         std::stringstream out;
-        
+
         if(formtH.array[0]){
             out << std::showpos;
         }
@@ -403,7 +403,7 @@ namespace Format {
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                final += print_num(formtH, maxInt);
+                final += printNum(formtH, maxInt);
                 break;
             case 'X':
                 formtH.array[5] = true;
@@ -429,7 +429,7 @@ namespace Format {
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                final += print_num(formtH, maxUi);
+                final += printNum(formtH, maxUi);
                 break;
             case 'E':
             case 'G':
@@ -449,7 +449,7 @@ namespace Format {
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                final += print_num(formtH, frfr);
+                final += printNum(formtH, frfr);
                 break;
             case 'c':
                 if (formtH.length == l) {
@@ -511,14 +511,14 @@ namespace Format {
                 }
                 break;
             case '@':
-                final += print_at(value);
+                final += printVal(value);
                 break;
             default:
                 throw std::invalid_argument("Unknown format specifier: '" + stringF[item] + '\'');
                 break;
         }
 
-        return final + format_impl(stringF, item, output + final.length(), args...);
+        return final + impl(stringF, item, output + final.length(), args...);
     }
 }
 
@@ -545,7 +545,7 @@ namespace Format {
  */
 
 template<typename... Args> std::string format(const std::string& fmt, const Args&... args){
-    return Format::format_impl(fmt, 0, 0, args...);
+    return Format::impl(fmt, 0, 0, args...);
 }
 
 #endif
