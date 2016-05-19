@@ -2,39 +2,35 @@
 #include "format.h"
 
 namespace Format {
-    std::string sequenceOfChar(unsigned u, char c) {
-        std::string final = "";
-        for (unsigned i = 1; i <= u; i++){
-            final += c;
+    std::string sequenceOfChar(char c, unsigned n){
+        std::string result = "";
+        for(unsigned i = 0; i < n; i++){
+            result +=c;
         }
-        return final;
+        return result;
     }
 
-    std::string specification(const std::string &str, bool presence, unsigned &item) {
+    std::string specification(const std::string &str, unsigned &item, bool presences){
         std::string final = "";
-        while (item < str.length()) {
+        while(item < str.length()){
 
-            long len = str.length() - 1;
-
-            while (item <= len && str[item] != '%') {
-                final += str[item];
-                ++item;
+            while (item < str.length() && str[item] != '%'){
+                final += str[item++];
             }
-
-            if (item == len) {
+            if(item == str.length() - 1){
                 throw std::invalid_argument("failure in format");
             }
 
-            if (item > len) {
-                if (presence) {
+            if(item == str.length()){
+                if(presences){
                     throw std::invalid_argument("abundance of symbols");
                 }
                 return final;
             }
 
-            if (str[item + 1] != '%') {
+            if(str[item + 1] != '%'){
                 ++item;
-                if (!presence) {
+                if(!presences){
                     throw std::out_of_range("lack of symbols");
                 }
                 break;
@@ -42,17 +38,16 @@ namespace Format {
                 final += '%';
                 item += 2;
             }
-
         }
         return final;
     }
 
-    std::string formatImplementation (const std::string &str, unsigned output, unsigned item) {
-        return specification(str, false, item);
+    std::string formatImplementation(const std::string &str, unsigned item, unsigned output){
+        return specification(str, item, false);
     }
 
-    std::string ptint_at (nullptr_t value) {
+    std::string print_at(nullptr_t value){
         return "nullptr";
     }
 }
-
+  
