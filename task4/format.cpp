@@ -13,10 +13,10 @@ namespace Format {
     std::string specification(const std::string &str, unsigned &item, bool presences){
         std::string final = "";
         while(item < str.length()){
-
-            while (item < str.length() && str[item] != '%'){
-                final += str[item++];
-            }
+            for(; item < str.length() && str[item] != '%'; final += str[item++]));
+            //while (item < str.length() && str[item] != '%'){
+            //    final += str[item++];
+            //}
             if(item == str.length() - 1){
                 throw std::invalid_argument("failure in format");
             }
