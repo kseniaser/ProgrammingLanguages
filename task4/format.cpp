@@ -3,8 +3,8 @@
 namespace Format {
     std::string char_seq(char c, unsigned n){
         std::string result = "";
-        for(unsigned i = 0; i < n; i++){
-            result.push_back(c);
+        for(unsigned i = 1; i <= n; i++){
+            result += c;
 	    }
 	    return result;
     }
@@ -12,7 +12,10 @@ namespace Format {
     std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
         std::string result = "";
         while(pos < fmt.length()){
-            for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
+        	while(pos < fmt.length() && fmt[pos] != '%'){
+        		result += fmt[pos++];	
+        	}
+            //for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
             if(pos == fmt.length()){
                 if(has_arguments){
                     throw std::invalid_argument("Too many arguments for format");
