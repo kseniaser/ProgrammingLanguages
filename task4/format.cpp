@@ -9,37 +9,37 @@ namespace Format {
         return result;
     }
 
-    std::string spec(const std::string &fmt, unsigned &pos, bool has_arguments){
+    std::string spec(const std::string &fmt, unsigned &item, bool notEmpty){
         std::string result = "";
-        while(pos < fmt.length()){
-            while(pos < fmt.length() && fmt[pos] != '%'){
-                result += fmt[pos++];
+        while(item < fmt.length()){
+            while(item < fmt.length() && fmt[item] != '%'){
+                result += fmt[item++];
             }
-            if(pos >= fmt.length()){
-                if(has_arguments){
+            if(item >= fmt.length()){
+                if(notEmpty){
                     throw std::invalid_argument("abundance of symbols");
                 }
                 return result;
             }
-            if(pos == fmt.length() - 1){
+            if(item == fmt.length() - 1){
                 throw std::invalid_argument("failure in format");
             }
-            if(fmt[pos + 1] != '%'){
-                ++pos;
-                if(!has_arguments){
+            if(fmt[item + 1] != '%'){
+                ++item;
+                if(!notEmpty){
                     throw std::out_of_range("lack of symbols");
                 }
                 break;
             } else {
                 result += '%';
-                pos += 2;
+                item += 2;
             }
         }
         return result;
     }
 
-    std::string impl(const std::string &fmt, unsigned pos, unsigned printed){
-        return spec(fmt, pos, false);
+    std::string impl(const std::string &fmt, unsigned item, unsigned output){
+        return spec(fmt, item, false);
     }
 
     std::string print_at(nullptr_t value){
