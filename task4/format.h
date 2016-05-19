@@ -249,17 +249,49 @@ namespace Format {
 
         while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
             if (fmt[pos]== 'h') {
-                    fm.length = (fm.length == len_h) ? len_hh : ((fm.length == len_default) ? len_h : len_error);
+                if (fm.length == len_h) {
+                    fm.length = len_hh;
+                } else{
+                    if (fm.length == len_default){
+                        fm.length = len_h;
+                    } else {
+                        fm.length = len_error;
+                    }
+                }
             } else if (fmt[pos]== 'l') {
-                    fm.length = (fm.length == len_l) ? len_ll : ((fm.length == len_default) ? len_l : len_error);
+                if (fm.length == len_l) {
+                    fm.length = len_ll;
+                } else{
+                    if (fm.length == len_default){
+                        fm.length = len_l;
+                    } else {
+                        fm.length = len_error;
+                    }
+                }
             } else if (fmt[pos]=='j') {
-                    fm.length = (fm.length == len_default) ? len_j : len_error;
+                    if (fm.length == len_default) {
+                        fm.length = len_j;
+                    } else {
+                        fm.length = len_error;
+                    }
             } else if (fmt[pos]== 'z') {
-                    fm.length = (fm.length == len_default) ? len_z : len_error;
+                    if (fm.length == len_default) {
+                        fm.length = len_z;
+                    } else {
+                        fm.length = len_error;
+                    }
             }else if (fmt[pos]== 't') {
-                    fm.length = (fm.length == len_default) ? len_t : len_error;
+                    if (fm.length == len_default) {
+                        fm.length = len_t;
+                    } else {
+                        fm.length = len_error;
+                    }
             } else if (fmt[pos]== 'L') {
-                    fm.length = (fm.length == len_default) ? len_L : len_error;
+                    if (fm.length == len_default) {
+                        fm.length = len_L;
+                    } else {
+                        fm.length = len_error;
+                    }
             }
             ++ pos;
         }
