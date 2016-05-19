@@ -77,9 +77,15 @@ namespace Format {
     template<typename T> typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value && std::is_pointer<T>::value, std::string>::type print_at(T& value){
         std::string r;
 		if(value == 0){
-			r.append("nullptr<").append(typeid(*value).name()).append(">");
+			r += "nullptr<";
+			r += typeid(*value).name();
+			r += ">";
 		} else {
-		    r.append("ptr<").append(typeid(*value).name()).append(">(").append(format("%@", *value)).append(")");
+		    r += "ptr<";
+		    r += typeid(*value).name();
+		    r += ">(";
+		    r+= format("%@", *value);
+		    r += ")";
 		}
 		return r;
 	}
