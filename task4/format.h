@@ -116,14 +116,26 @@ namespace Format {
             }
         }
         char buffer[2048];
-        if(fm.floating){
-            if(fm.length == len_L){temp.push_back('L');}
-            if(fm.length == len_l){temp.push_back('l');}
-            temp.push_back(fm.type);
-        } else {
+        
+        if (fm.floating && fm.length == len_L)
+            {temp.push_back('L');}
+        if (fm.floating && fm.length == len_l)
+            {temp.push_back('l');}
+        if (fm.floating)
+            {temp.push_back(fm.type);}
+        if(!fm.floating){
             temp.push_back('j');
             temp.push_back(fm.type);
         }
+        
+        //if(fm.floating){
+        //    if(fm.length == len_L){temp.push_back('L');}
+        //    if(fm.length == len_l){temp.push_back('l');}
+        //    temp.push_back(fm.type);
+        //} else {
+        //    temp.push_back('j');
+        //    temp.push_back(fm.type);
+        //}
         snprintf(buffer, sizeof(buffer), temp.c_str(), value);
         std::string r = buffer;
         if(fm.precision > 1024 && r.size() > 1024 / 2){
