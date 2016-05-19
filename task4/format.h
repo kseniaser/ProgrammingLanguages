@@ -142,18 +142,20 @@ namespace Format {
                     r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + 1) + r.substr(2);
                 }
             }
-
-        if((unsigned) fm.width > r.size() && fm.left_justify){
+            
+        long param = r.size();
+        
+        if((unsigned) fm.width > param && fm.left_justify){
                 r += char_seq(' ', fm.width - r.size());
         }
-        if((unsigned) fm.width > r.size() && !fm.left_justify && fm.left_pad){
+        if((unsigned) fm.width > param && !fm.left_justify && fm.left_pad){
             if (r.find_first_of("+- ") == 0) {
                 r = r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
             } else {
                 r += char_seq('0', fm.width - r.size());
             }
         } 
-        if((unsigned) fm.width > r.size() && !fm.left_justify && !fm.left_pad) {
+        if((unsigned) fm.width > param && !fm.left_justify && !fm.left_pad) {
                     r += char_seq(' ', fm.width - r.size());
         }
         
