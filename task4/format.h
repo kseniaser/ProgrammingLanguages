@@ -560,7 +560,7 @@ namespace Format {
         } else if (formString.type == '@') {
             final += print_at(value);
         } else {
-            throw std::invalid_argument("Strange format specifier: '" + str[item] + '\'');
+            throw std::invalid_argument("Strange format specifier: '" + strF[item] + '\'');
         }
 
         return final + formatImplementation(strF, item, output + final.length(), args...);
