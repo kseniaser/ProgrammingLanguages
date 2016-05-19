@@ -50,4 +50,3 @@ namespace Format {
         return "nullptr";
     }
 }
-  
