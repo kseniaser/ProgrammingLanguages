@@ -248,26 +248,20 @@ namespace Format {
         }
 
         while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
-            switch(fmt[pos++]){
-                case 'h':
+            if (fmt[pos]== 'h') {
                     fm.length = (fm.length == len_h) ? len_hh : ((fm.length == len_default) ? len_h : len_error);
-                    break;
-                case 'l':
+            } else if (fmt[pos]== 'l') {
                     fm.length = (fm.length == len_l) ? len_ll : ((fm.length == len_default) ? len_l : len_error);
-                    break;
-                case 'j':
+            } else if (fmt[pos]=='j') {
                     fm.length = (fm.length == len_default) ? len_j : len_error;
-                    break;
-                case 'z':
+            } else if (fmt[pos]== 'z') {
                     fm.length = (fm.length == len_default) ? len_z : len_error;
-                    break;
-                case 't':
+            }else if (fmt[pos]== 't') {
                     fm.length = (fm.length == len_default) ? len_t : len_error;
-                    break;
-                case 'L':
+            } else if (fmt[pos]== 'L') {
                     fm.length = (fm.length == len_default) ? len_L : len_error;
-                    break;
             }
+            ++ pos;
         }
 
         if(fm.length == len_error){
