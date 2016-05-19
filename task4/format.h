@@ -43,13 +43,13 @@ namespace Format {
     std::string char_seq(char c, unsigned n);
 
     /*
-     * Если аргумент - nullptr_t – выводит nullptr
-     * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа>
-     * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@)
-     * Если аргумент массив известной размерности – выводит элементы массива через запятую в []
-     * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования
-     * Если ни одно преобразование невозможно – кидается исключение
-     */
+    * if the argument is  nullptr_t – prints nullptr
+    * if the argument is pointer and his value is 0 – prints nulltpr<type_name>
+    * if the argument is pointer and his value isn't 0 - prints ptr<type_name>(the_same_as%@)
+    * if it is an element of array of known capacity – prints all elements of array in [] separated by commas
+    * if argument can't be transformed into std::string – prints result of such modification
+    * if non of modifications is possible – throws exception
+    */
 
     std::string print_at(nullptr_t value);
 
@@ -89,6 +89,11 @@ namespace Format {
         }
         return r;
     }
+    
+        /*
+     * Builds string with the given format specifier and the given argument
+     * If the argument does not match its specifier, it throws an exception
+     */
 
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
         // Disclaimer:
@@ -169,6 +174,11 @@ namespace Format {
         std::string result = find_spec(fmt, pos, true);
         format_t fm;
         std::string temp = "";
+        
+        intmax_t d;      // Integer
+        uintmax_t u;     // Unsigned
+        double f;        // Floating point
+        char nil_p[6];   // Null pointer fix
 
         while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
             if (fmt[pos] == '-') {
@@ -321,11 +331,6 @@ namespace Format {
             out << std::showbase << std::showpoint;
         }
 
-        intmax_t d;      // Integer
-        uintmax_t u;     // Unsigned
-        double f;        // Floating point
-        char nil_p[6];   // Null pointer fix
-
         fm.type = fmt[pos++];
          switch(fm.type){
             case 'd':
@@ -470,26 +475,24 @@ namespace Format {
 
 
 /**
- * Returns a std::string formatted with *printf syntax
+ * Transform std::string into *printf syntax
  *
- * @param   fmt
- *          A <a href="http://cplusplus.com/printf">format string</a>
+ * @param   str
+ *          A format string
  *
  * @param   args
- *          Arguments required by the format specifiers in the format
- *          string. If there are more arguments than format specifiers, the
- *          extra arguments are ignored. The number of arguments is
- *          variable and may be zero.
+ *          Essential argument for the format string.
+ *          In case of abundance of arguments ignores unwanted arguments.
+ *          Variable number of arguments.
  *
  * @throws  std::invalid_format
- *          If a format string contains an unexpected specifier,
- *          an argument can not be converted to required format,
+ *          If an argument was converted to unrequired format
  *          or in other illegal conditions.
  *
  * @throws  std::out_of_range
- *          If there are not enough arguments in args list
+ *          If there lack of arguments in args list
  *
- * @return  std::string, formatted using format and args
+ * @return  std::string, transformed using format and args
  */
 
 template<typename... Args> std::string format(const std::string& fmt, const Args&... args){
