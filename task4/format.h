@@ -24,11 +24,11 @@ namespace Format {
                    error};
 
     struct format_t {
-        bool array[8] = {false};
-        int width = 0,
-                precision = -1;
-        char type;
         enum length_t length = standart;
+        bool array[8] = {false};
+        int sz = 0, accur = -1;
+        char type;
+        
     };
 
     template<typename To, typename From> typename
@@ -117,11 +117,11 @@ namespace Format {
 
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
 
-        if(!fm.array[6] && fm.precision >= 0 && fm.array[4]) {
+        if(!fm.array[6] && fm.accur >= 0 && fm.array[4]) {
             fm.array[4] = false;
         }
-        if(!fm.array[6] && fm.precision < 0 ){
-            fm.precision = 1;
+        if(!fm.array[6] && fm.accur < 0 ){
+            fm.accur = 1;
         }
 
         std::string temp = "%";
@@ -131,12 +131,12 @@ namespace Format {
         if(fm.array[2]){temp += ' ';}
         if(fm.array[3]){temp += '#';}
         if(fm.array[4]){temp += '0';}
-        if(fm.precision >= 0){
+        if(fm.accur >= 0){
             temp += '.';
-            if (fm.precision > 1024){
+            if (fm.accur > 1024){
                 temp += std::to_string(1024);
             } else {
-                temp += std::to_string(fm.precision);
+                temp += std::to_string(fm.accur);
             }
         }
         char buffer[2048];
@@ -156,31 +156,31 @@ namespace Format {
 
         std::string r = buffer;
 
-        if(fm.precision > 1024 && r.size() > 512 && fm.array[6]){
-            r += char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
+        if(fm.accur > 1024 && r.size() > 512 && fm.array[6]){
+            r += char_seq('0', fm.accur - r.size() + r.find_first_of('.') + 1);
         }
-        if(fm.precision > 1024 && r.size() > 512 && !fm.array[6]){
+        if(fm.accur > 1024 && r.size() > 512 && !fm.array[6]){
             if (r[0]=='0'){
-                r = r.substr(0, 2) + char_seq('0', fm.precision - r.size()) + r.substr(2);
+                r = r.substr(0, 2) + char_seq('0', fm.accur - r.size()) + r.substr(2);
             } else {
-                r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + 1) + r.substr(2);
+                r = r.substr(0, 2) + char_seq('0', fm.accur - r.size() + 1) + r.substr(2);
             }
         }
 
 
-        if((unsigned) fm.width > r.size()){
+        if((unsigned) fm.sz > r.size()){
             if(fm.array[1]){
-                r +=char_seq(' ', fm.width - r.size());
+                r +=char_seq(' ', fm.sz - r.size());
             } else {
                 if(fm.array[4]){
                     if (r.find_first_of("+- ") == 0){
-                        r =  r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
+                        r =  r[0] + char_seq('0', fm.sz - r.size()) + r.substr(1);
                     } else {
-                        r =  char_seq('0', fm.width - r.size()) + r;
+                        r =  char_seq('0', fm.sz - r.size()) + r;
                         //r += r;
                     }
                 } else {
-                    r = char_seq(' ', fm.width - r.size()) + r;
+                    r = char_seq(' ', fm.sz - r.size()) + r;
                     //r += r;
                 }
             }
@@ -217,9 +217,9 @@ namespace Format {
         }
 
         if(pos < fmt.length() && fmt[pos] == '*'){
-            fm.width = convert<int>(value);
-            if(fm.width < 0){
-                fm.width *= -1;
+            fm.sz = convert<int>(value);
+            if(fm.sz < 0){
+                fm.sz *= -1;
                 fm.array[1] = true;
                 fm.array[4] = false;
             }
@@ -229,7 +229,7 @@ namespace Format {
             if(fm.array[2]){temp += ' ';}
             if(fm.array[3]){temp += '#';}
             if(fm.array[4]){temp += '0';}
-            temp += std::to_string(fm.width);
+            temp += std::to_string(fm.sz);
             return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
         } else {
 
@@ -237,7 +237,7 @@ namespace Format {
                 temp += fmt[pos++];
             }
             if(!temp.empty()){
-                fm.width = stoi(temp);
+                fm.sz = stoi(temp);
                 temp.clear();
             }
         }
@@ -245,32 +245,32 @@ namespace Format {
         if(pos < fmt.length() - 1 && fmt[pos] == '.'){
             ++pos;
             if(fmt[pos] == '*'){
-                fm.precision = convert<int>(value);
+                fm.accur = convert<int>(value);
                 temp = "%";
                 if(fm.array[0]){temp += '+';}
                 if(fm.array[1]){temp += '-';}
                 if(fm.array[2]){temp += ' ';}
                 if(fm.array[3]){temp += '#';}
                 if(fm.array[4]){temp += '0';}
-                if(fm.width != 0){temp += std::to_string(fm.width);}
+                if(fm.sz != 0){temp += std::to_string(fm.sz);}
                 temp += '.';
-                temp += std::to_string(fm.precision);
+                temp += std::to_string(fm.accur);
                 return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
             } else {
                 if(fmt[pos] == '-'){
-                    fm.precision = -1;
+                    fm.accur = -1;
                     ++pos;
                 } else {
-                    fm.precision = 1;
+                    fm.accur = 1;
                 }
                 while (pos < fmt.length() && isdigit(fmt[pos])){
                     temp += fmt[pos++];
                 }
                 if(temp.empty()){
-                    fm.precision = 0;
+                    fm.accur = 0;
                 }
                 if (!temp.empty()) {
-                    fm.precision *= stoi(temp);
+                    fm.accur *= stoi(temp);
                     temp.clear();
                 }
             }
@@ -340,11 +340,11 @@ namespace Format {
         if(fm.array[1]){
             out << std::left;
         }
-        if(fm.width != 0){
-            out.width(fm.width);
+        if(fm.sz != 0){
+            out.width(fm.sz);
         }
-        if(fm.precision >= 0){
-            out.precision(fm.precision);
+        if(fm.accur >= 0){
+            out.precision(fm.accur);
         }
         if(fm.array[3]){
             out << std::showbase << std::showpoint;
@@ -438,8 +438,8 @@ namespace Format {
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                if(fm.precision >= 0 && str.length() > (unsigned) fm.precision){
-                    str = str.substr(0, fm.precision);
+                if(fm.accur >= 0 && str.length() > (unsigned) fm.accur){
+                    str = str.substr(0, fm.accur);
                 }
                 out << str;
                 result += out.str();
