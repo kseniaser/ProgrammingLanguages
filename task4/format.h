@@ -143,19 +143,19 @@ namespace Format {
                 }
             }
             
-        long param = r.size();
-        
-        if((unsigned) fm.width > param && fm.left_justify){
+        long long param = r.size();
+        long long pararam = (unsigned) fm.width; 
+        if(pararam > param && fm.left_justify){
                 r += char_seq(' ', fm.width - r.size());
         }
-        if((unsigned) fm.width > param && !fm.left_justify && fm.left_pad){
+        if( pararam > param && !fm.left_justify && fm.left_pad){
             if (r.find_first_of("+- ") == 0) {
                 r = r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
             } else {
                 r += char_seq('0', fm.width - r.size());
             }
         } 
-        if((unsigned) fm.width > param && !fm.left_justify && !fm.left_pad) {
+        if(pararam > param && !fm.left_justify && !fm.left_pad) {
                     r += char_seq(' ', fm.width - r.size());
         }
         
