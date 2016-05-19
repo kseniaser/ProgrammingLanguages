@@ -1,3 +1,9 @@
+#ifndef FORMAT_H
+#define FORMAT_H
+
+#include <string>
+#include <sstream>
+#include <stdexcept>
 #include <cstddef>
 #include <iomanip>
 #include <cstdio>
