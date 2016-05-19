@@ -41,9 +41,9 @@ namespace Format {
         throw std::invalid_argument("Invalid argument type");
     }
 
-    std::string spec(const std::string &fmt, unsigned &pos, bool has_arguments);
+    std::string spec(const std::string &fmt, unsigned &item, bool notEmpty);
 
-    std::string impl(const std::string &fmt, unsigned pos, unsigned printed);
+    std::string impl(const std::string &fmt, unsigned item, unsigned output);
 
     std::string seq(char c, unsigned n);
 
