@@ -387,15 +387,12 @@ namespace Format {
             case 'F':
             case 'f':
                 fm.floating = true;
-                switch (fm.length){
-                    case len_l:
-                    case len_default:
+                if (fm.length == len_l){
+                } else if (fm.length == len_default) {
                         f = convert<double>(value);
-                        break;
-                    case len_L:
+                } else if (fm.length == len_L) {
                         f = convert<long double>(value);
-                        break;
-                    default:
+                } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
                 result.append(print_num(fm, f));
