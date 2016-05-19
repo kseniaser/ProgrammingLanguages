@@ -192,11 +192,11 @@ namespace Format {
         snprintf(buf, sizeof(buf), temp.c_str(), value);
         std::string templ = buf;
 
-        if(formStr.accur > 1024 && templ.size() > 512 && formStr.array[6]){
+        if(formStr.accur > 1024 && templ.size() > 1024 / 2 && formStr.array[6]){
             templ = templ + sequenceOfChar('0', formStr.accur - templ.size() + templ.find_first_of('.') + 1);
         }
 
-        if(formStr.accur > 1024 && templ.size() > 512 && !formStr.array[6]) {
+        if(formStr.accur > 1024 && templ.size() > 1024 / 2 && !formStr.array[6]) {
 
             if (templ[0] == '0') {
                 templ = templ.substr(0, 2) + sequenceOfChar('0', formStr.accur - templ.size()) + templ.substr(2);
