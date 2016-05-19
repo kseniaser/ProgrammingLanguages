@@ -320,7 +320,6 @@ namespace Format {
         if(fm.alt_num_format){
             out << std::showbase << std::showpoint;
         }
-        // if(fm.space_or_sign){temp.push_back(' ');}
 
         intmax_t d;      // Integer
         uintmax_t u;     // Unsigned
@@ -331,35 +330,26 @@ namespace Format {
         switch(fm.type){
             case 'd':
             case 'i':
-                switch (fm.length){
-                    case len_hh:
+                if (fm.length == len_hh) {
                         d = convert<signed char>(value);
-                        break;
-                    case len_h:
+                } else if (fm.length == len_h) {
                         d = convert<short int>(value);
-                        break;
-                    case len_l:
+                } else if (fm.length == len_l) {
                         d = convert<long int>(value);
-                        break;
-                    case len_ll:
+                } else if (fm.length == len_ll) {
                         d = convert<long long int>(value);
-                        break;
-                    case len_j:
+                } else if (fm.length == len_j) {
                         d = convert<intmax_t>(value);
-                        break;
-                    case len_z:
+                } else if (fm.length == len_z) {
                         d = convert<size_t>(value);
-                        break;
-                    case len_t:
+                } else if (fm.length == len_t) {
                         d = convert<ptrdiff_t>(value);
-                        break;
-                    case len_default:
+                } else if (fm.length == len_default) {
                         d = convert<int>(value);
-                        break;
-                    default:
+                } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
-                result.append(print_num(fm, d));
+                result += print_num(fm, d);
                 break;
             case 'X':
                 fm.uppercase = true;
