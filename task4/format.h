@@ -93,13 +93,14 @@ namespace Format {
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
         // Disclaimer:
         // This template might not comply with *printf standarts but I hope everything is OK
+        if(!fm.floating && fm.precision >= 0 && fm.left_pad) {
+                fm.left_pad = false;
+        }
         if(!fm.floating && fm.precision < 0 ){
                 fm.precision = 1;
         } 
         
-        if(!fm.floating && fm.precision >= 0 && fm.left_pad) {
-                fm.left_pad = false;
-        }
+        
         
 
         std::string temp = "%";
