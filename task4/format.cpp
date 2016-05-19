@@ -15,15 +15,14 @@ namespace Format {
         	while(pos < fmt.length() && fmt[pos] != '%'){
         		result += fmt[pos++];	
         	}
-            //for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
-            if(pos == fmt.length()){
+            if(pos >= fmt.length()){
                 if(has_arguments){
-                    throw std::invalid_argument("Too many arguments for format");
+                    throw std::invalid_argument("abundance of symbols");
                 }
                 return result;
             }
             if(pos == fmt.length() - 1){
-                throw std::invalid_argument("Spurious trailing '%%' in format");
+                throw std::invalid_argument("failure in format");
             }
             if(fmt[pos + 1] == '%'){
                 result.push_back('%');
@@ -31,7 +30,7 @@ namespace Format {
             } else {
                 pos++;
                 if(!has_arguments){
-                    throw std::out_of_range("Need more arguments");
+                    throw std::out_of_range("lack of symbols");
                 }
                 break;
             }
