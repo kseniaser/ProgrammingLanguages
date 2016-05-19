@@ -328,84 +328,6 @@ namespace Format {
 
         fm.type = fmt[pos++];
          switch(fm.type){
-            case 'd':
-            case 'i':
-                if (fm.length == len_hh) {
-                        d = convert<signed char>(value);
-                } else if (fm.length == len_h) {
-                        d = convert<short int>(value);
-                } else if (fm.length == len_l) {
-                        d = convert<long int>(value);
-                } else if (fm.length == len_ll) {
-                        d = convert<long long int>(value);
-                } else if (fm.length == len_j) {
-                        d = convert<intmax_t>(value);
-                } else if (fm.length == len_z) {
-                        d = convert<size_t>(value);
-                } else if (fm.length == len_t) {
-                        d = convert<ptrdiff_t>(value);
-                } else if (fm.length == len_default) {
-                        d = convert<int>(value);
-                } else {
-                        throw std::invalid_argument("Unsupported length specifier");
-                }
-                result += print_num(fm, d);
-        break;
-            case 'X':
-                fm.uppercase = true;
-        case 'x':
-            case 'o':
-            case 'u':
-                if (fm.length == len_hh) {
-                        u = convert<unsigned char>(value);
-                } else if (fm.length == len_h) {
-                        u = convert<unsigned short int>(value);
-                } else if (fm.length == len_l) {
-                        u = convert<unsigned long int>(value);
-                } else if (fm.length == len_ll) {
-                        u = convert<unsigned long long int>(value);
-                } else if (fm.length == len_j) {
-                        u = convert<uintmax_t>(value);
-                } else if (fm.length == len_z) {
-                        u = convert<size_t>(value);
-                } else if (fm.length == len_t) {
-                        u = convert<ptrdiff_t>(value);
-                } else if (fm.length == len_default) {
-                        u = convert<unsigned int>(value);
-                } else {
-                    throw std::invalid_argument("Unsupported length specifier");
-                }
-                result += print_num(fm, u);
-        break;
-            case 'E':
-            case 'G':
-            case 'A':
-                fm.uppercase = true;
-         case 'e':
-            case 'g':
-            case 'a':
-            case 'F':
-            case 'f':
-                fm.floating = true;
-                if (fm.length == len_l){
-                } else if (fm.length == len_default) {
-                        f = convert<double>(value);
-                } else if (fm.length == len_L) {
-                        f = convert<long double>(value);
-                } else {
-                        throw std::invalid_argument("Unsupported length specifier");
-                }
-                result += print_num(fm, f);
-        break;
-            case 'c':
-                if (fm.length == len_l) {
-                } else if (fm.length == len_default) {
-                        out << convert<unsigned char>(value);
-                } else {
-                        throw std::invalid_argument("Unsupported length specifier");
-                }
-                result += out.str();
-        break;
             case 's': {
                 std::string str;
                 if (fm.length == len_l) {
@@ -433,7 +355,20 @@ namespace Format {
                     out << "(nil)";
                 }
                 result += out.str();
-        break;
+                break;
+            case 'p':
+                if(fm.length != len_default){
+                    throw std::invalid_argument("Unsupported length specifier");
+                }
+                out << std::setfill(fm.left_pad ? '0' : ' ');
+                snprintf(nil_p, 2, "%p", convert<void*>(value));
+                if(nil_p[0] != '(' && convert<void*>(value) != NULL && convert<void*>(value) != nullptr){
+                    out << convert<void*>(value);
+                } else {
+                    out << "(nil)";
+                }
+                result += out.str();
+                break;
             case 'n':
                 printed += result.length();
                 if (fm.length == len_hh) {
@@ -455,13 +390,91 @@ namespace Format {
                 } else {
                         throw std::invalid_argument("Unsupported length specifier");
                 }
-        break;
+                break;
+            case 'd':
+            case 'i':
+                if (fm.length == len_hh) {
+                        d = convert<signed char>(value);
+                } else if (fm.length == len_h) {
+                        d = convert<short int>(value);
+                } else if (fm.length == len_l) {
+                        d = convert<long int>(value);
+                } else if (fm.length == len_ll) {
+                        d = convert<long long int>(value);
+                } else if (fm.length == len_j) {
+                        d = convert<intmax_t>(value);
+                } else if (fm.length == len_z) {
+                        d = convert<size_t>(value);
+                } else if (fm.length == len_t) {
+                        d = convert<ptrdiff_t>(value);
+                } else if (fm.length == len_default) {
+                        d = convert<int>(value);
+                } else {
+                        throw std::invalid_argument("Unsupported length specifier");
+                }
+                result += print_num(fm, d);
+                break;
+            case 'X':
+                fm.uppercase = true;
+            case 'x':
+            case 'o':
+            case 'u':
+                if (fm.length == len_hh) {
+                        u = convert<unsigned char>(value);
+                } else if (fm.length == len_h) {
+                        u = convert<unsigned short int>(value);
+                } else if (fm.length == len_l) {
+                        u = convert<unsigned long int>(value);
+                } else if (fm.length == len_ll) {
+                        u = convert<unsigned long long int>(value);
+                } else if (fm.length == len_j) {
+                        u = convert<uintmax_t>(value);
+                } else if (fm.length == len_z) {
+                        u = convert<size_t>(value);
+                } else if (fm.length == len_t) {
+                        u = convert<ptrdiff_t>(value);
+                } else if (fm.length == len_default) {
+                        u = convert<unsigned int>(value);
+                } else {
+                    throw std::invalid_argument("Unsupported length specifier");
+                }
+                result += print_num(fm, u);
+                break;
+            case 'E':
+            case 'G':
+            case 'A':
+                fm.uppercase = true;
+            case 'e':
+            case 'g':
+            case 'a':
+            case 'F':
+            case 'f':
+                fm.floating = true;
+                if (fm.length == len_l){
+                } else if (fm.length == len_default) {
+                        f = convert<double>(value);
+                } else if (fm.length == len_L) {
+                        f = convert<long double>(value);
+                } else {
+                        throw std::invalid_argument("Unsupported length specifier");
+                }
+                result += print_num(fm, f);
+                break;
+            case 'c':
+                if (fm.length == len_l) {
+                } else if (fm.length == len_default) {
+                        out << convert<unsigned char>(value);
+                } else {
+                        throw std::invalid_argument("Unsupported length specifier");
+                }
+                result += out.str();
+                break;
             case '@':
                 result += print_at(value);
-        break;
+                break;
             default:
                 throw std::invalid_argument("Unknown format specifier: '" + fmt[pos] + '\'');
-        break;
+                break;
         }
 
         return result + format_impl(fmt, pos, printed + result.length(), args...);
