@@ -24,15 +24,15 @@ namespace Format {
             if(pos == fmt.length() - 1){
                 throw std::invalid_argument("failure in format");
             }
-            if(fmt[pos + 1] == '%'){
-                result.push_back('%');
-                pos += 2;
-            } else {
-                pos++;
+            if(fmt[pos + 1] != '%'){
+                ++pos;
                 if(!has_arguments){
                     throw std::out_of_range("lack of symbols");
                 }
                 break;
+            } else {
+                result += '%';
+                pos += 2;
             }
         }
         return result;
