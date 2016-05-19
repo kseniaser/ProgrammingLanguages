@@ -64,9 +64,9 @@ namespace Format {
 	template<typename T, int num> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[num]) {
         std::string r = "[";
         for(int i = 0; i < num - 1; i++){
-			r.append(std::to_string(a[i]) + ", ");
+			r += (std::to_string(a[i]) + ", ");
 		}
-		r.append(std::to_string(a[num - 1]) + ']');
+		r += (std::to_string(a[num - 1]) + ']');
         return r;
     }
 
