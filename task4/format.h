@@ -195,15 +195,19 @@ namespace Format {
                 fm.left_pad = false;
             }
             temp = "%";
-            if(fm.force_sign){temp.push_back('+');}
-            if(fm.left_justify){temp.push_back('-');}
-            if(fm.space_or_sign){temp.push_back(' ');}
-            if(fm.alt_num_format){temp.push_back('#');}
-            if(fm.left_pad){temp.push_back('0');}
-            temp.append(std::to_string(fm.width));
+            if(fm.force_sign){temp += '+';}
+            if(fm.left_justify){temp += '-';}
+            if(fm.space_or_sign){temp += ' ';}
+            if(fm.alt_num_format){temp += '#';}
+            if(fm.left_pad){temp += '0';}
+            temp += std::to_string(fm.width);
             return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
         } else {
-            for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
+            
+            while (pos < fmt.length() && isdigit(fmt[pos])){
+                temp += fmt[pos++]
+            }
+            //for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
             if(!temp.empty()){
                 fm.width = stoi(temp);
                 temp.clear();
