@@ -118,27 +118,21 @@ namespace Format {
         char buffer[2048];
         
         if (fm.floating && fm.length == len_L)
-            {temp.push_back('L');}
+            {temp += 'L';}
         if (fm.floating && fm.length == len_l)
-            {temp.push_back('l');}
+            {temp += 'l';}
         if (fm.floating)
-            {temp.push_back(fm.type);}
+            {temp += fm.type;}
         if(!fm.floating){
-            temp.push_back('j');
-            temp.push_back(fm.type);
+            temp += 'j';
+            temp += fm.type;
         }
         
-        //if(fm.floating){
-        //    if(fm.length == len_L){temp.push_back('L');}
-        //    if(fm.length == len_l){temp.push_back('l');}
-        //    temp.push_back(fm.type);
-        //} else {
-        //    temp.push_back('j');
-        //    temp.push_back(fm.type);
-        //}
         snprintf(buffer, sizeof(buffer), temp.c_str(), value);
+        
         std::string r = buffer;
-        if(fm.precision > 1024 && r.size() > 1024 / 2){
+        
+        if(fm.precision > 1024 && r.size() > 512){
             if(fm.floating){
                 r = r + char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
             } else {
