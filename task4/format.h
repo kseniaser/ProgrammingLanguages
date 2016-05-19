@@ -152,13 +152,13 @@ namespace Format {
                     if (r.find_first_of("+- ") == 0){
                         r =  r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
                     } else {
-                        r =  char_seq('0', fm.width - r.size());
-                        r += r;
+                        r =  char_seq('0', fm.width - r.size()) + r;
+                        //r += r;
                     }
                 } else {
-                    r = char_seq(' ', fm.width - r.size());
-                    r += r;
-                }
+                    r = char_seq(' ', fm.width - r.size()) + r;
+                   //r += r;
+                } 
             }
         }
 
