@@ -249,21 +249,21 @@ namespace Format {
                strF[item] == '#' ||
                strF[item] == '0')) {
 
-            if (strF[item++] == '-') {
+            if (strF[item] == '-') {
                 formString.array[1] = true;
                 formString.array[4] = false;
-            } else if (strF[item++] == '+') {
+            } else if (strF[item] == '+') {
                 formString.array[0] = true;
                 formString.array[2] = false;
-            } else if (strF[item++] == ' ') {
+            } else if (strF[item] == ' ') {
                 formString.array[2] = !formString.array[0];
-            } else if (strF[item++] == '#') {
+            } else if (strF[item] == '#') {
                 formString.array[3] = true;
-            }else if (strF[item++] == '0') {
+            }else if (strF[item] == '0') {
                 formString.array[4] = !formString.array[1];
             }
 
-            //++item;
+            ++item;
         }
 
         if(item < strF.length() && strF[item] == '*'){
