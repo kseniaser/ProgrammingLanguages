@@ -143,7 +143,7 @@ namespace Format {
                 }
             }
             
-        if((unsigned) fm.width > r.size()){
+        /*if((unsigned) fm.width > r.size()){
             if(fm.left_justify){
                 r += char_seq(' ', fm.width - r.size());
             } 
@@ -158,20 +158,20 @@ namespace Format {
                     r += char_seq(' ', fm.width - r.size());
                 }
             }
-        }
+        }*/
            
 
-        //if((unsigned) fm.width > r.size()){
-         //  if(fm.left_justify){
-         //       r = r + char_seq(' ', fm.width - r.size());
-         //   } else {
-         //       if(fm.left_pad){
-         //           r = (r.find_first_of("+- ") == 0) ? r[0] + char_seq('0', fm.width - r.size()) + r.substr(1) : char_seq('0', fm.width - r.size()) + r;
-          //      } else {
-           //         r = char_seq(' ', fm.width - r.size()) + r;
-            //    }
-           // }
-       // }
+        if((unsigned) fm.width > r.size()){
+           if(fm.left_justify){
+                r = r + char_seq(' ', fm.width - r.size());
+            } else {
+                if(fm.left_pad){
+                    r = (r.find_first_of("+- ") == 0) ? r[0] + char_seq('0', fm.width - r.size()) + r.substr(1) : char_seq('0', fm.width - r.size()) + r;
+                } else {
+                    r = char_seq(' ', fm.width - r.size()) + r;
+                }
+            }
+        }
 
         return r;
     }
