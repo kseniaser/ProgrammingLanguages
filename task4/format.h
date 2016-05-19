@@ -143,25 +143,24 @@ namespace Format {
                 }
             }
             
-        /*if((unsigned) fm.width > r.size()){
+        if((unsigned) fm.width > r.size()){
             if(fm.left_justify){
                 r += char_seq(' ', fm.width - r.size());
-            } 
-            if(!fm.left_justify) {
+            } else {
                 if(fm.left_pad){
                     if (r.find_first_of("+- ") == 0){
-                        r =  r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
+                        r = char_seq('0', fm.width - r.size()) + r.substr(1);
                     } else {
-                        r += char_seq('0', fm.width - r.size());  
+                        r += char_seq('0', fm.width - r.size());
                     }
                 } else {
                     r += char_seq(' ', fm.width - r.size());
                 }
             }
-        }*/
+        }
            
 
-        if((unsigned) fm.width > r.size()){
+        /*if((unsigned) fm.width > r.size()){
            if(fm.left_justify){
                 r = r + char_seq(' ', fm.width - r.size());
             } else {
@@ -174,7 +173,7 @@ namespace Format {
         }
 
         return r;
-    }
+    }*/
 
     template<typename First, typename... Rest> std::string format_impl(const std::string& fmt, unsigned pos, unsigned printed, const First& value, const Rest&... args){
         std::string result = find_spec(fmt, pos, true);
