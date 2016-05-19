@@ -1,9 +1,3 @@
-#ifndef FORMAT_H
-#define FORMAT_H
-
-#include <string>
-#include <sstream>
-#include <stdexcept>
 #include <cstddef>
 #include <iomanip>
 #include <cstdio>
@@ -12,27 +6,32 @@
 template<typename... Args> std::string format(const std::string& fmt, const Args&... args);
 
 namespace Format {
-    enum length_t {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error};
+    enum length_t {hh,
+                   h,
+                   standart,
+                   l,
+                   ll,
+                   j,
+                   z,
+                   t,
+                   L,
+                   error};
 
     struct format_t {
-        bool force_sign = false,
-                left_justify = false,
-                space_or_sign = false,
-                alt_num_format = false,
-                left_pad = false,
-                uppercase = false,
-                floating = false;
+        bool array[8] = {false};
         int width = 0,
                 precision = -1;
         char type;
-        enum length_t length = len_default;
+        enum length_t length = standart;
     };
 
-    template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
+    template<typename To, typename From> typename
+            std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
         return (To) value;
     }
 
-    template<typename To, typename From> typename std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
+    template<typename To, typename From> typename
+            std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
         throw std::invalid_argument("Invalid argument type");
     }
 
@@ -53,7 +52,9 @@ namespace Format {
 
     std::string print_at(nullptr_t value);
 
-    template<typename T> typename std::enable_if<!std::is_integral<T>::value && !std::is_convertible<T, std::string>::value && !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
+    template<typename T> typename
+                    std::enable_if<!std::is_integral<T>::value && !std::is_convertible<T,
+                    std::string>::value && !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
         throw std::invalid_argument("Invalid argument type");
     }
 
@@ -61,7 +62,11 @@ namespace Format {
         return std::to_string(value);
     }
 
-    template<typename T, int num> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[num]) {
+    template<typename T, int num> typename
+                    std::enable_if<!std::is_convertible<T*,
+                    std::string>::value,
+                    std::string>::type print_at(const T (&a)[num]) {
+
         std::string r = "[";
         for(int i = 0; i < num - 1; i++){
             r += (std::to_string(a[i]) + ", ");
@@ -70,11 +75,20 @@ namespace Format {
         return r;
     }
 
-    template<typename T> typename std::enable_if<std::is_convertible<T, std::string>::value, std::string>::type print_at(const T& value){
+    template<typename T> typename
+                  std::enable_if<std::is_convertible<T,
+                  std::string>::value,
+                  std::string>::type print_at(const T& value){
+
         return value;
+
     }
 
-    template<typename T> typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value && std::is_pointer<T>::value, std::string>::type print_at(T& value){
+    template<typename T> typename
+            std::enable_if<!std::is_array<T>::value && !std::is_convertible<T,
+            std::string>::value && std::is_pointer<T>::value,
+            std::string>::type print_at(T& value){
+
         std::string r;
         if(value == 0){
             r += "nullptr<";
@@ -89,29 +103,28 @@ namespace Format {
         }
         return r;
     }
-    
-        /*
+
+    /*
      * Builds string with the given format specifier and the given argument
      * If the argument does not match its specifier, it throws an exception
      */
 
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
-        // Disclaimer:
-        // This template might not comply with *printf standarts but I hope everything is OK
-        if(!fm.floating && fm.precision >= 0 && fm.left_pad) {
-            fm.left_pad = false;
+
+        if(!fm.array[6] && fm.precision >= 0 && fm.array[4]) {
+            fm.array[4] = false;
         }
-        if(!fm.floating && fm.precision < 0 ){
+        if(!fm.array[6] && fm.precision < 0 ){
             fm.precision = 1;
         }
-        
+
         std::string temp = "%";
-        
-        if(fm.force_sign){temp += '+';}
-        if(fm.left_justify){temp += '-';}
-        if(fm.space_or_sign){temp += ' ';}
-        if(fm.alt_num_format){temp += '#';}
-        if(fm.left_pad){temp += '0';}
+
+        if(fm.array[0]){temp += '+';}
+        if(fm.array[1]){temp += '-';}
+        if(fm.array[2]){temp += ' ';}
+        if(fm.array[3]){temp += '#';}
+        if(fm.array[4]){temp += '0';}
         if(fm.precision >= 0){
             temp += '.';
             if (fm.precision > 1024){
@@ -121,39 +134,39 @@ namespace Format {
             }
         }
         char buffer[2048];
-        
-        if (fm.floating && fm.length == len_L)
-            {temp += 'L';}
-        if (fm.floating && fm.length == len_l)
-            {temp += 'l';}
-        if (fm.floating)
-            {temp += fm.type;}
-        if(!fm.floating){
+
+        if (fm.array[6] && fm.length == L)
+        {temp += 'L';}
+        if (fm.array[6] && fm.length == l)
+        {temp += 'l';}
+        if (fm.array[6])
+        {temp += fm.type;}
+        if(!fm.array[6]){
             temp += 'j';
             temp += fm.type;
         }
-        
+
         snprintf(buffer, sizeof(buffer), temp.c_str(), value);
-        
+
         std::string r = buffer;
-        
-        if(fm.precision > 1024 && r.size() > 512 && fm.floating){
-                r += char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
+
+        if(fm.precision > 1024 && r.size() > 512 && fm.array[6]){
+            r += char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
         }
-        if(fm.precision > 1024 && r.size() > 512 && !fm.floating){
-                if (r[0]=='0'){
-                    r = r.substr(0, 2) + char_seq('0', fm.precision - r.size()) + r.substr(2);
-                } else {
-                    r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + 1) + r.substr(2);
-                }
+        if(fm.precision > 1024 && r.size() > 512 && !fm.array[6]){
+            if (r[0]=='0'){
+                r = r.substr(0, 2) + char_seq('0', fm.precision - r.size()) + r.substr(2);
+            } else {
+                r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + 1) + r.substr(2);
+            }
         }
-           
+
 
         if((unsigned) fm.width > r.size()){
-           if(fm.left_justify){
+            if(fm.array[1]){
                 r +=char_seq(' ', fm.width - r.size());
             } else {
-                if(fm.left_pad){
+                if(fm.array[4]){
                     if (r.find_first_of("+- ") == 0){
                         r =  r[0] + char_seq('0', fm.width - r.size()) + r.substr(1);
                     } else {
@@ -162,8 +175,8 @@ namespace Format {
                     }
                 } else {
                     r = char_seq(' ', fm.width - r.size()) + r;
-                   //r += r;
-                } 
+                    //r += r;
+                }
             }
         }
 
@@ -174,25 +187,25 @@ namespace Format {
         std::string result = find_spec(fmt, pos, true);
         format_t fm;
         std::string temp = "";
-        
-        intmax_t d;      // Integer
-        uintmax_t u;     // Unsigned
-        double f;        // Floating point
-        char nil_p[6];   // Null pointer fix
+
+        intmax_t d;
+        uintmax_t u;
+        double f;
+        char nil_p[6];
 
         while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
             if (fmt[pos] == '-') {
-                    fm.left_justify = true;
-                    fm.left_pad = false;
+                fm.array[1] = true;
+                fm.array[4] = false;
             } else if (fmt[pos] == '+') {
-                    fm.force_sign = true;
-                    fm.space_or_sign = false;
+                fm.array[0] = true;
+                fm.array[2] = false;
             } else if (fmt[pos] == ' ') {
-                    fm.space_or_sign = !fm.force_sign;
+                fm.array[2] = !fm.array[0];
             } else if (fmt[pos] == '#') {
-                    fm.alt_num_format = true;
+                fm.array[3] = true;
             } else if (fmt[pos] == '0') {
-                    fm.left_pad = !fm.left_justify;
+                fm.array[4] = !fm.array[1];
             }
             ++pos;
         }
@@ -201,19 +214,19 @@ namespace Format {
             fm.width = convert<int>(value);
             if(fm.width < 0){
                 fm.width *= -1;
-                fm.left_justify = true;
-                fm.left_pad = false;
+                fm.array[1] = true;
+                fm.array[4] = false;
             }
             temp = "%";
-            if(fm.force_sign){temp += '+';}
-            if(fm.left_justify){temp += '-';}
-            if(fm.space_or_sign){temp += ' ';}
-            if(fm.alt_num_format){temp += '#';}
-            if(fm.left_pad){temp += '0';}
+            if(fm.array[0]){temp += '+';}
+            if(fm.array[1]){temp += '-';}
+            if(fm.array[2]){temp += ' ';}
+            if(fm.array[3]){temp += '#';}
+            if(fm.array[4]){temp += '0';}
             temp += std::to_string(fm.width);
             return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
         } else {
-            
+
             while (pos < fmt.length() && isdigit(fmt[pos])){
                 temp += fmt[pos++];
             }
@@ -228,11 +241,11 @@ namespace Format {
             if(fmt[pos] == '*'){
                 fm.precision = convert<int>(value);
                 temp = "%";
-                if(fm.force_sign){temp += '+';}
-                if(fm.left_justify){temp += '-';}
-                if(fm.space_or_sign){temp += ' ';}
-                if(fm.alt_num_format){temp += '#';}
-                if(fm.left_pad){temp += '0';}
+                if(fm.array[0]){temp += '+';}
+                if(fm.array[1]){temp += '-';}
+                if(fm.array[2]){temp += ' ';}
+                if(fm.array[3]){temp += '#';}
+                if(fm.array[4]){temp += '0';}
                 if(fm.width != 0){temp += std::to_string(fm.width);}
                 temp += '.';
                 temp += std::to_string(fm.precision);
@@ -249,7 +262,7 @@ namespace Format {
                 }
                 if(temp.empty()){
                     fm.precision = 0;
-                } 
+                }
                 if (!temp.empty()) {
                     fm.precision *= stoi(temp);
                     temp.clear();
@@ -259,54 +272,54 @@ namespace Format {
 
         while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
             if (fmt[pos]== 'h') {
-                if (fm.length == len_h) {
-                    fm.length = len_hh;
+                if (fm.length == h) {
+                    fm.length = hh;
                 } else{
-                    if (fm.length == len_default){
-                        fm.length = len_h;
+                    if (fm.length ==  standart){
+                        fm.length = h;
                     } else {
-                        fm.length = len_error;
+                        fm.length = error;
                     }
                 }
             } else if (fmt[pos]== 'l') {
-                if (fm.length == len_l) {
-                    fm.length = len_ll;
+                if (fm.length == l) {
+                    fm.length = ll;
                 } else{
-                    if (fm.length == len_default){
-                        fm.length = len_l;
+                    if (fm.length == standart){
+                        fm.length = l;
                     } else {
-                        fm.length = len_error;
+                        fm.length = error;
                     }
                 }
             } else if (fmt[pos]=='j') {
-                    if (fm.length == len_default) {
-                        fm.length = len_j;
-                    } else {
-                        fm.length = len_error;
-                    }
+                if (fm.length == standart) {
+                    fm.length = j;
+                } else {
+                    fm.length = error;
+                }
             } else if (fmt[pos]== 'z') {
-                    if (fm.length == len_default) {
-                        fm.length = len_z;
-                    } else {
-                        fm.length = len_error;
-                    }
+                if (fm.length == standart) {
+                    fm.length = z;
+                } else {
+                    fm.length = error;
+                }
             }else if (fmt[pos]== 't') {
-                    if (fm.length == len_default) {
-                        fm.length = len_t;
-                    } else {
-                        fm.length = len_error;
-                    }
+                if (fm.length == standart) {
+                    fm.length = t;
+                } else {
+                    fm.length = error;
+                }
             } else if (fmt[pos]== 'L') {
-                    if (fm.length == len_default) {
-                        fm.length = len_L;
-                    } else {
-                        fm.length = len_error;
-                    }
+                if (fm.length == standart) {
+                    fm.length = L;
+                } else {
+                    fm.length = error;
+                }
             }
             ++ pos;
         }
 
-        if(fm.length == len_error){
+        if(fm.length == error){
             throw std::invalid_argument("Unknown length specifier");
         }
 
@@ -315,10 +328,10 @@ namespace Format {
         }
 
         std::stringstream out;
-        if(fm.force_sign){
+        if(fm.array[0]){
             out << std::showpos;
         }
-        if(fm.left_justify){
+        if(fm.array[1]){
             out << std::left;
         }
         if(fm.width != 0){
@@ -327,56 +340,56 @@ namespace Format {
         if(fm.precision >= 0){
             out.precision(fm.precision);
         }
-        if(fm.alt_num_format){
+        if(fm.array[3]){
             out << std::showbase << std::showpoint;
         }
 
         fm.type = fmt[pos++];
-         switch(fm.type){
+        switch(fm.type){
             case 'd':
             case 'i':
-                if (fm.length == len_hh) {
-                        d = convert<signed char>(value);
-                } else if (fm.length == len_h) {
-                        d = convert<short int>(value);
-                } else if (fm.length == len_l) {
-                        d = convert<long int>(value);
-                } else if (fm.length == len_ll) {
-                        d = convert<long long int>(value);
-                } else if (fm.length == len_j) {
-                        d = convert<intmax_t>(value);
-                } else if (fm.length == len_z) {
-                        d = convert<size_t>(value);
-                } else if (fm.length == len_t) {
-                        d = convert<ptrdiff_t>(value);
-                } else if (fm.length == len_default) {
-                        d = convert<int>(value);
+                if (fm.length == hh) {
+                    d = convert<signed char>(value);
+                } else if (fm.length == h) {
+                    d = convert<short int>(value);
+                } else if (fm.length == l) {
+                    d = convert<long int>(value);
+                } else if (fm.length == ll) {
+                    d = convert<long long int>(value);
+                } else if (fm.length == j) {
+                    d = convert<intmax_t>(value);
+                } else if (fm.length == z) {
+                    d = convert<size_t>(value);
+                } else if (fm.length == t) {
+                    d = convert<ptrdiff_t>(value);
+                } else if (fm.length == standart) {
+                    d = convert<int>(value);
                 } else {
-                        throw std::invalid_argument("Unsupported length specifier");
+                    throw std::invalid_argument("Unsupported length specifier");
                 }
                 result += print_num(fm, d);
                 break;
             case 'X':
-                fm.uppercase = true;
+                fm.array[5] = true;
             case 'x':
             case 'o':
             case 'u':
-                if (fm.length == len_hh) {
-                        u = convert<unsigned char>(value);
-                } else if (fm.length == len_h) {
-                        u = convert<unsigned short int>(value);
-                } else if (fm.length == len_l) {
-                        u = convert<unsigned long int>(value);
-                } else if (fm.length == len_ll) {
-                        u = convert<unsigned long long int>(value);
-                } else if (fm.length == len_j) {
-                        u = convert<uintmax_t>(value);
-                } else if (fm.length == len_z) {
-                        u = convert<size_t>(value);
-                } else if (fm.length == len_t) {
-                        u = convert<ptrdiff_t>(value);
-                } else if (fm.length == len_default) {
-                        u = convert<unsigned int>(value);
+                if (fm.length == hh) {
+                    u = convert<unsigned char>(value);
+                } else if (fm.length == h) {
+                    u = convert<unsigned short int>(value);
+                } else if (fm.length == l) {
+                    u = convert<unsigned long int>(value);
+                } else if (fm.length == ll) {
+                    u = convert<unsigned long long int>(value);
+                } else if (fm.length == j) {
+                    u = convert<uintmax_t>(value);
+                } else if (fm.length == z) {
+                    u = convert<size_t>(value);
+                } else if (fm.length == t) {
+                    u = convert<ptrdiff_t>(value);
+                } else if (fm.length == standart) {
+                    u = convert<unsigned int>(value);
                 } else {
                     throw std::invalid_argument("Unsupported length specifier");
                 }
@@ -385,39 +398,39 @@ namespace Format {
             case 'E':
             case 'G':
             case 'A':
-                fm.uppercase = true;
+                fm.array[5] = true;
             case 'e':
             case 'g':
             case 'a':
             case 'F':
             case 'f':
-                fm.floating = true;
-                if (fm.length == len_l){
-                } else if (fm.length == len_default) {
-                        f = convert<double>(value);
-                } else if (fm.length == len_L) {
-                        f = convert<long double>(value);
+                fm.array[6] = true;
+                if (fm.length == l){
+                } else if (fm.length == standart) {
+                    f = convert<double>(value);
+                } else if (fm.length == L) {
+                    f = convert<long double>(value);
                 } else {
-                        throw std::invalid_argument("Unsupported length specifier");
+                    throw std::invalid_argument("Unsupported length specifier");
                 }
                 result += print_num(fm, f);
                 break;
             case 'c':
-                if (fm.length == len_l) {
-                } else if (fm.length == len_default) {
-                        out << convert<unsigned char>(value);
+                if (fm.length == l) {
+                } else if (fm.length == standart) {
+                    out << convert<unsigned char>(value);
                 } else {
-                        throw std::invalid_argument("Unsupported length specifier");
+                    throw std::invalid_argument("Unsupported length specifier");
                 }
                 result += out.str();
                 break;
             case 's': {
                 std::string str;
-                if (fm.length == len_l) {
-                } else if (fm.length == len_default) {
-                        str = convert<std::string>(value);
+                if (fm.length == l) {
+                } else if (fm.length == standart) {
+                    str = convert<std::string>(value);
                 } else {
-                        throw std::invalid_argument("Unsupported length specifier");
+                    throw std::invalid_argument("Unsupported length specifier");
                 }
                 if(fm.precision >= 0 && str.length() > (unsigned) fm.precision){
                     str = str.substr(0, fm.precision);
@@ -427,10 +440,10 @@ namespace Format {
             }
                 break;
             case 'p':
-                if(fm.length != len_default){
+                if(fm.length != standart){
                     throw std::invalid_argument("Unsupported length specifier");
                 }
-                out << std::setfill(fm.left_pad ? '0' : ' ');
+                out << std::setfill(fm.array[4] ? '0' : ' ');
                 snprintf(nil_p, 2, "%p", convert<void*>(value));
                 if(nil_p[0] != '(' && convert<void*>(value) != NULL && convert<void*>(value) != nullptr){
                     out << convert<void*>(value);
@@ -441,24 +454,24 @@ namespace Format {
                 break;
             case 'n':
                 printed += result.length();
-                if (fm.length == len_hh) {
-                        *(convert<signed char*>(value)) = printed;
-                } else if (fm.length == len_h) {
-                        *(convert<short int*>(value)) = printed;
-                } else if (fm.length == len_l) {
-                        *(convert<long int*>(value)) = printed;
-                } else if (fm.length == len_ll) {
-                        *(convert<long long int*>(value)) = printed;
-                } else if (fm.length == len_j) {
-                        *(convert<intmax_t*>(value)) = printed;
-                } else if (fm.length == len_z) {
-                        *(convert<size_t*>(value)) = printed;
-                } else if (fm.length == len_t) {
-                        *(convert<ptrdiff_t*>(value)) = printed;
-                } else if (fm.length == len_default) {
-                        *(convert<int*>(value)) = printed;
+                if (fm.length == hh) {
+                    *(convert<signed char*>(value)) = printed;
+                } else if (fm.length == h) {
+                    *(convert<short int*>(value)) = printed;
+                } else if (fm.length == l) {
+                    *(convert<long int*>(value)) = printed;
+                } else if (fm.length == ll) {
+                    *(convert<long long int*>(value)) = printed;
+                } else if (fm.length == j) {
+                    *(convert<intmax_t*>(value)) = printed;
+                } else if (fm.length == z) {
+                    *(convert<size_t*>(value)) = printed;
+                } else if (fm.length == t) {
+                    *(convert<ptrdiff_t*>(value)) = printed;
+                } else if (fm.length == standart) {
+                    *(convert<int*>(value)) = printed;
                 } else {
-                        throw std::invalid_argument("Unsupported length specifier");
+                    throw std::invalid_argument("Unsupported length specifier");
                 }
                 break;
             case '@':
